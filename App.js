@@ -46,7 +46,7 @@ import Modal2 from './src/screens/Modal2';
 // import Tabs
 import Tabs from './src/common/Tabs';
 import {initialState, UserContext} from './src/contexts/UserContext';
-import {AsyncStorage} from 'react-native';
+import {AsyncStorage, LogBox} from 'react-native';
 import {Loader} from './src/common/Loader';
 import {StatusBar} from 'react-native';
 import {GoogleSignin} from '@react-native-community/google-signin';
@@ -54,6 +54,8 @@ import {GoogleSignin} from '@react-native-community/google-signin';
 // Create Stacks form Drawer,Appavigator,Tabs Stack
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
+
+LogBox.ignoreAllLogs();
 
 function HomeScreenStack() {
   return (
@@ -108,8 +110,28 @@ function App() {
     try {
       const _payload = await AsyncStorage.getItem('payload');
       if (_payload) {
-        setPayload(JSON.parse(_payload));
-        setLoading(false);
+        const p = JSON.parse(_payload);
+        fetch('https://cuboidtechnologies.com/api/users/userprofile', {
+          headers: {
+            Authorization: `Bearer ${p.token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((result) => {
+            if (result.status === 'success') {
+              setPayload({
+                isLoggedIn: true,
+                token: p.token,
+                user: result.data.user,
+              });
+              setLoading(false);
+            } else if (result.status === 'error') {
+              setPayload(initialState);
+              logout();
+              setLoading(false);
+            }
+          })
+          .catch((err) => console.log(err));
       } else {
         setPayload(initialState);
         setLoading(false);

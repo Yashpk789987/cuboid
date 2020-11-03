@@ -27,7 +27,7 @@ class ProfilePage extends Component {
     const {
       payload: {user},
     } = this.context;
-    console.log(user);
+
     return (
       <View style={styles.container}>
         <ScrollView style={{marginBottom: 20}}>
@@ -35,10 +35,20 @@ class ProfilePage extends Component {
 
           <View style={styles.MainView}>
             <View style={{flexDirection: 'row', width: '100%'}}>
-              <View style={{width: '85%', marginTop: -85, left: 30}}>
+              <View style={{width: '85%', marginTop: -50, left: '30%'}}>
                 <Image
-                  style={{width: 200, height: 200, alignSelf: 'center'}}
-                  source={require('../../assets/Icons/UserProfile.png')}
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 60,
+                    resizeMode: 'cover',
+                    alignSelf: 'center',
+                  }}
+                  source={
+                    user.imagepath
+                      ? {uri: user.imagepath}
+                      : require('../../assets/Icons/no-data.png')
+                  }
                 />
               </View>
               <View style={{width: '15%'}}>

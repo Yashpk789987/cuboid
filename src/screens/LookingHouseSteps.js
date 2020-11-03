@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+/* eslint-disable no-alert */
+/* eslint-disable react-native/no-inline-styles */
+import React, {Component} from 'react';
 import {
   View,
   Text,
@@ -9,46 +11,42 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
+import {ScrollView} from 'react-native-gesture-handler';
 
 import {
   Collapse,
   CollapseHeader,
   CollapseBody,
   AccordionList,
-  FlatList,
 } from 'accordion-collapse-react-native';
-// import Slider from '@react-native-community/slider';
+
 import RangeSlider from 'rn-range-slider';
 import Modal from 'react-native-modal';
-import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
-import { max, min } from 'react-native-reanimated';
+import {UserContext} from '../contexts/UserContext';
 
 class LookingHouseSteps extends Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
-      // rangeHigh:100,
-      // rangeLow:50,
-      "cost": {
-        "max": 100,
-        "min": 50
+      cost: {
+        max: 100,
+        min: 50,
       },
-      "area": "4000",
-      "mainCategory": "",
-      "subCategory": "",
-      "propertyStatus": "",
-      "location": '',
-      "bedroom": '',
-      "balcony": false,
-      "borehole": false,
-      "cctv": false,
-      "disabilityfeature": false,
-      "fireplace": false,
-      "maturegarden": false,
-      "opticalfiber": false,
-      "partyarea": false,
+      area: '4000',
+      mainCategory: '',
+      subCategory: '',
+      propertyStatus: '',
+      location: '',
+      bedroom: '',
+      balcony: false,
+      borehole: false,
+      cctv: false,
+      disabilityfeature: false,
+      fireplace: false,
+      maturegarden: false,
+      opticalfiber: false,
+      partyarea: false,
 
       AreaName: '',
       featurename: '',
@@ -60,8 +58,6 @@ class LookingHouseSteps extends Component {
       TotalBathrooms: '',
       WeSelect: '',
       AreaSelect: '',
-
-
 
       MainCategory: [
         {
@@ -141,7 +137,7 @@ class LookingHouseSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/OpticalFiber.png'),
           name: 'Optical Fiber',
-          key: 'opticalfiber'
+          key: 'opticalfiber',
         },
         // {
         //   index: '1',
@@ -153,7 +149,7 @@ class LookingHouseSteps extends Component {
           index: '1',
           imageurl: require('../../assets/Icons/FirePlace.png'),
           name: '  Fire Place',
-          key: 'fireplace'
+          key: 'fireplace',
         },
         // {
         //   index: '3',
@@ -174,19 +170,19 @@ class LookingHouseSteps extends Component {
           index: '2',
           imageurl: require('../../assets/Icons/CCTV.png'),
           name: 'CCTV',
-          key: 'cctv'
+          key: 'cctv',
         },
         {
           index: '3',
           imageurl: require('../../assets/Icons/BoreHole.png'),
           name: '   Bore Hole',
-          key: 'borehole'
+          key: 'borehole',
         },
         {
           index: '4',
           imageurl: require('../../assets/Icons/Disability.png'),
           name: ' Disability',
-          key: 'disabilityfeature'
+          key: 'disabilityfeature',
         },
         // {
         //   index: '9',
@@ -197,19 +193,19 @@ class LookingHouseSteps extends Component {
           index: '5',
           imageurl: require('../../assets/Icons/MatureGarden.png'),
           name: 'Mature  Garden',
-          key: 'maturegarden'
+          key: 'maturegarden',
         },
         {
           index: '6',
           imageurl: require('../../assets/Icons/Balcony.png'),
           name: 'Balcony',
-          key: 'balcony'
+          key: 'balcony',
         },
         {
           index: '7',
           imageurl: require('../../assets/Icons/PartyArea.png'),
           name: '   Party Area',
-          key: 'partyarea'
+          key: 'partyarea',
         },
       ],
       Select_Services: [
@@ -268,6 +264,7 @@ class LookingHouseSteps extends Component {
           area: true,
         },
       ],
+      message: '',
     };
   }
 
@@ -285,60 +282,33 @@ class LookingHouseSteps extends Component {
     this.setState({
       index: this.state.index - 1,
     });
-    if (this.state.index == 0) {
+    if (this.state.index === 0) {
       this.props.navigation.navigate('WelcomeScreen');
     }
   };
   //////////////// Previous Search Step ////////////
 
-
   //////////////// Counter Function's ////////////
   AddBathroom = () => {
-    this.setState({ BathroomCounter: this.state.BathroomCounter + 1 });
+    this.setState({BathroomCounter: this.state.BathroomCounter + 1});
   };
   SubtaractBathroom = () => {
-    this.setState({ BathroomCounter: this.state.BathroomCounter - 1 });
+    this.setState({BathroomCounter: this.state.BathroomCounter - 1});
   };
   //////////////// Counter Function's ////////////
 
-
   closemodal = () => {
-
-    console.log(this.state.WeSelect)
-    console.log(this.state.BathroomCounter)
-    console.log(this.state.AreaSelect)
-    console.log(this.state.rangeLow, this.state.rangeHigh)
-    // console.log(this.state.featurename)
-    // if (this.state.featurename == 'Bathrooms') {
-    //   alert("right")
-
-    // } else {
-    //   alert('Wronge')
-    // }
-    // console.log(this.state.TotalBathrooms)
-    // const counter = this.state.BathroomCounter;
-    // const featurename = this.state.featurename;
-    // const blankarray = this.state.featurearray;
-    // const min = this.state.rangeLow;
-    // const max = this.state.rangeHigh;
-    // const AreaName = this.state.AreaName
-
-    // blankarray.push({ name: featurename, count: counter, Area: { min: min, max: max }, AreaName: AreaName });
-
     this.setState({
       isModalVisible: false,
-      // featurearray: blankarray,
       isModalVisible1: false,
     });
   };
 
-
   toggleModal = (name, area) => {
-    if (area == false) {
+    if (area === false) {
       this.setState({
         isModalVisible: !this.state.isModalVisible,
         WeSelect: name,
-
       });
     } else {
       this.setState({
@@ -348,237 +318,133 @@ class LookingHouseSteps extends Component {
     }
   };
 
-
-
   //////////////// //////////////////////  SEARCH FLIPBOOK WITH STEP 1 DATA ////////////////////////////////////////////
   Step1Search = () => {
-    const URL = 'http://192.168.0.103:4000/api/search/house-search-1'
+    this.setState({message: ''});
+    const {mainCategory} = this.state;
+    if (mainCategory === '') {
+      this.setState({message: '* Required MainCategory'});
+    }
+    const URL = 'http://192.168.0.103:4000/api/search/house-search-1';
     axios({
       method: 'post',
       url: URL,
       data: {
-
-        "cost": {
-          "max": this.state.max,
-          "min": this.state.min
+        cost: {
+          max: this.state.max,
+          min: this.state.min,
         },
-        "attributes": {
-          "area": "4000",
-          "mainCategory": this.state.mainCategory,
-          "subCategory": this.state.subCategory,
-          "propertyStatus": this.state.propertyStatus,
-          "location": this.state.location,
-          "bedroom": this.state.bedroom,
-          "balcony": this.state.balcony,
-          "borehole": this.state.borehole,
-          "cctv": this.state.cctv,
-          "disabilityfeature": this.state.disabilityfeature,
-          "fireplace": this.state.fireplace,
-          "maturegarden": this.state.maturegarden,
-          "opticalfiber": this.state.opticalfiber,
-          "partyarea": this.state.partyarea,
-        }
-      }
+        attributes: {
+          area: '4000',
+          mainCategory: this.state.mainCategory,
+          subCategory: this.state.subCategory,
+          propertyStatus: this.state.propertyStatus,
+          location: this.state.location,
+          bedroom: this.state.bedroom,
+          balcony: this.state.balcony,
+          borehole: this.state.borehole,
+          cctv: this.state.cctv,
+          disabilityfeature: this.state.disabilityfeature,
+          fireplace: this.state.fireplace,
+          maturegarden: this.state.maturegarden,
+          opticalfiber: this.state.opticalfiber,
+          partyarea: this.state.partyarea,
+        },
+      },
     })
       /////////////////////////////////// AFTER RUN THE API FIND THE RESPONSE OF API/////////////////////////////////////
       .then((response) => {
-        console.log(response)
+        console.log(response);
         const data = response.data;
         // console.log(data);
         const status = data.status;
-        // console.log(status)
 
-        if (status == "success") {
-          // alert('ok')
+        if (status === 'success') {
           var Alldata = {
-
-            "cost": {
-              "max": this.state.max,
-              "min": this.state.min
+            cost: {
+              max: this.state.max,
+              min: this.state.min,
             },
-            "attributes": {
-              "area": "4000",
-              "mainCategory": this.state.mainCategory,
-              "subCategory": this.state.subCategory,
-              "propertyStatus": this.state.propertyStatus,
-              "location": this.state.location,
-              "bedroom": this.state.bedroom,
-              "balcony": this.state.balcony,
-              "borehole": this.state.borehole,
-              "cctv": this.state.cctv,
-              "disabilityfeature": this.state.disabilityfeature,
-              "fireplace": this.state.fireplace,
-              "maturegarden": this.state.maturegarden,
-              "opticalfiber": this.state.opticalfiber,
-              "partyarea": this.state.partyarea,
-            }
-          }
+            attributes: {
+              area: '4000',
+              mainCategory: this.state.mainCategory,
+              subCategory: this.state.subCategory,
+              propertyStatus: this.state.propertyStatus,
+              location: this.state.location,
+              bedroom: this.state.bedroom,
+              balcony: this.state.balcony,
+              borehole: this.state.borehole,
+              cctv: this.state.cctv,
+              disabilityfeature: this.state.disabilityfeature,
+              fireplace: this.state.fireplace,
+              maturegarden: this.state.maturegarden,
+              opticalfiber: this.state.opticalfiber,
+              partyarea: this.state.partyarea,
+            },
+          };
           // console.log(Alldata);
-          this.props.navigation.navigate('SearchFlipbook', { data: Alldata },)
-
+          this.props.navigation.navigate('SearchFlipbook', {data: Alldata});
         } else {
-          alert('Page Not Found')
+          alert('Page Not Found');
         }
       })
       /////////////////////////////////// ERROR ALERT API NOT RUN ///////////////////////////////////////////////////
       .catch(function (error) {
         console.log(error);
       });
-  }
+  };
 
   //////////////// //////////////////////  SEARCH FLIPBOOK WITH STEP 2 DATA ////////////////////////////////////////////
   SearchStep2 = () => {
     console.log({
-
-      "cost": {
-        "max": this.state.max,
-        "min": this.state.min
+      cost: {
+        max: this.state.max,
+        min: this.state.min,
       },
-      "attributes": {
-        "area": "4000",
-        "mainCategory": this.state.mainCategory,
-        "subCategory": this.state.subCategory,
-        "propertyStatus": this.state.propertyStatus,
-        "location": this.state.location,
-        "bedroom": this.state.bedroom,
-        "balcony": this.state.balcony,
-        "borehole": this.state.borehole,
-        "cctv": this.state.cctv,
-        "disabilityfeature": this.state.disabilityfeature,
-        "fireplace": this.state.fireplace,
-        "maturegarden": this.state.maturegarden,
-        "opticalfiber": this.state.opticalfiber,
-        "partyarea": this.state.partyarea,
+      attributes: {
+        area: '4000',
+        mainCategory: this.state.mainCategory,
+        subCategory: this.state.subCategory,
+        propertyStatus: this.state.propertyStatus,
+        location: this.state.location,
+        bedroom: this.state.bedroom,
+        balcony: this.state.balcony,
+        borehole: this.state.borehole,
+        cctv: this.state.cctv,
+        disabilityfeature: this.state.disabilityfeature,
+        fireplace: this.state.fireplace,
+        maturegarden: this.state.maturegarden,
+        opticalfiber: this.state.opticalfiber,
+        partyarea: this.state.partyarea,
       },
-      "livingsize": {
-        "minliv": this.state.rangeLow,
-        "maxliv": this.state.rangeLow,
+      livingsize: {
+        minliv: this.state.rangeLow,
+        maxliv: this.state.rangeLow,
       },
-      "kitchensize": {
-        "minkit": 10,
-        "maxkit": 500
+      kitchensize: {
+        minkit: 10,
+        maxkit: 500,
       },
-      "gardensize": {
-        "mingarden": 10,
-        "maxgarden": 500
-      }
-    })
-
-
-    // const URL = 'http://192.168.0.103:4000/api/search/house-search-2'
-    // axios({
-    //   method: 'post',
-    //   url: URL,
-    //   data: {
-
-    //     "cost": {
-    //       "max": this.state.max,
-    //       "min": this.state.min
-    //     },
-    //     "attributes": {
-    //       "area": "4000",
-    //       "mainCategory": this.state.mainCategory,
-    //       "subCategory": this.state.subCategory,
-    //       "propertyStatus": this.state.propertyStatus,
-    //       "location": this.state.location,
-    //       "bedroom": this.state.bedroom,
-    //       "balcony": this.state.balcony,
-    //       "borehole": this.state.borehole,
-    //       "cctv": this.state.cctv,
-    //       "disabilityfeature": this.state.disabilityfeature,
-    //       "fireplace": this.state.fireplace,
-    //       "maturegarden": this.state.maturegarden,
-    //       "opticalfiber": this.state.opticalfiber,
-    //       "partyarea": this.state.partyarea,
-    //     },
-    //     "livingArea": {
-    //       "min": this.state.rangeLow,
-    //       "max": this.state.rangeLow,
-    //     },
-    //     "kitchenArea": {
-    //       "min": 1,
-    //       "max": 1500
-    //     },
-    //     "gardenArea": {
-    //       "min": 1,
-    //       "max": 1500
-    //     }
-
-    //   }
-    // })
-    //   /////////////////////////////////// AFTER RUN THE API FIND THE RESPONSE OF API/////////////////////////////////////
-    //   .then((response) => {
-    //     console.log(response)
-    //     const data = response.data;
-    //     // console.log(data);
-    //     const status = data.status;
-    //     // console.log(status)
-
-    //     if (status == "success") {
-    //       // alert('ok')
-
-
-    //       var Alldata = {
-
-    //         "cost": {
-    //           "max": this.state.max,
-    //           "min": this.state.min
-    //         },
-    //         "attributes": {
-    //           "area": "4000",
-    //           "mainCategory": this.state.mainCategory,
-    //           "subCategory": this.state.subCategory,
-    //           "propertyStatus": this.state.propertyStatus,
-    //           "location": this.state.location,
-    //           "bedroom": this.state.bedroom,
-    //           "balcony": this.state.balcony,
-    //           "borehole": this.state.borehole,
-    //           "cctv": this.state.cctv,
-    //           "disabilityfeature": this.state.disabilityfeature,
-    //           "fireplace": this.state.fireplace,
-    //           "maturegarden": this.state.maturegarden,
-    //           "opticalfiber": this.state.opticalfiber,
-    //           "partyarea": this.state.partyarea,
-    //         },
-    //         "livingArea": {
-    //           "min": 1,
-    //           "max": 1500
-    //         },
-    //         "kitchenArea": {
-    //           "min": 1,
-    //           "max": 1500
-    //         },
-    //         "gardenArea": {
-    //           "min": 1,
-    //           "max": 1500
-    //         }
-    //       }
-    //       // console.log(Alldata);
-    //       this.props.navigation.navigate('SearchFlipbook', { data: Alldata }, console.log(Alldata))
-
-    //     } else {
-    //       alert('Page Not Found')
-    //     }
-
-
-
-    //   })
-    //   /////////////////////////////////// ERROR ALERT API NOT RUN ///////////////////////////////////////////////////
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
-  }
+      gardensize: {
+        mingarden: 10,
+        maxgarden: 500,
+      },
+    });
+  };
 
   render() {
-    console.log(this.state.featurearray);
+    const {
+      payload: {
+        isLoggedIn,
+        user: {firstname},
+      },
+    } = this.context;
     const progressStepsStyle = {
-      activeStepIconBorderColor: '#000', //Active step ,numbers border color
+      activeStepIconBorderColor: '#000',
       activeLabelColor: '#000',
-      activeStepNumColor: '#FFA500', //Numbers color in processbar
-      //   activeStepIconBackgroundColor='#000',
-      //   activeStepIconColor: '#F5F5F5',                 // Current active step color
-      completedStepIconColor: '#000', //After complete the step change the step color
-      completedProgressBarColor: '#000', //line Borders
+      activeStepNumColor: '#FFA500',
+      completedStepIconColor: '#000',
+      completedProgressBarColor: '#000',
       completedCheckColor: '#fff',
       height: 50,
       width: 100,
@@ -586,9 +452,8 @@ class LookingHouseSteps extends Component {
     };
 
     return (
-      <View style={{ flex: 1 }}>
-        <ScrollView style={{ bottom: 10 }}>
-          {/*/////////////////////////////////////////  Header Start //////////////////////////////*/}
+      <View style={{flex: 1}}>
+        <ScrollView style={{bottom: 10}}>
           <View style={styles.HeaderView}>
             <View
               style={{
@@ -603,8 +468,14 @@ class LookingHouseSteps extends Component {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('RegisterPage')}
-                style={{ alignItems: 'center' }}>
+                onPress={() => {
+                  if (isLoggedIn) {
+                    this.props.navigation.navigate('Profilepage');
+                  } else {
+                    this.props.navigation.navigate('RegisterPage');
+                  }
+                }}
+                style={{alignItems: 'center'}}>
                 <Image
                   style={styles.HeaderRightIcon}
                   source={require('../../assets/Icons/UserIcon.png')}
@@ -615,14 +486,14 @@ class LookingHouseSteps extends Component {
                     fontSize: 10,
                     fontFamily: 'Lato-Regular',
                   }}>
-                  Sign up
+                  {isLoggedIn ? firstname : 'Sign up'}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/*/////////////////////////////////////// / Header end //////////////////////////////////// */}
-          <View style={{ width: '100%' }}>
+          <View style={{width: '100%'}}>
             {/* ////////////////////////////// Main ProcessSteps start Here  /////////////////////////  */}
             <ProgressSteps
               {...progressStepsStyle}
@@ -637,12 +508,12 @@ class LookingHouseSteps extends Component {
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}
                 removeBtnRow={true}>
-                <View style={{ top: 20 }}>
+                <View style={{top: 20}}>
                   {/* ///////////////////////////////////// Choose Main One Category /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Choose one main category
                         </Text>
                         <Image
@@ -650,7 +521,7 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -658,7 +529,7 @@ class LookingHouseSteps extends Component {
                         data={this.state.MainCategory}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -666,16 +537,21 @@ class LookingHouseSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              onPress={() => this.setState({ mainCategory: item.name })}
+                              onPress={() =>
+                                this.setState({mainCategory: item.name})
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: this.state.mainCategory == item.name ? '#F6D700' : '#f2f2f2',
+                                backgroundColor:
+                                  this.state.mainCategory === item.name
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -688,7 +564,7 @@ class LookingHouseSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -697,9 +573,9 @@ class LookingHouseSteps extends Component {
                   </Collapse>
                   {/* ///////////////////////////////////// Bathrooms /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Bedrooms
                         </Text>
                         <Image
@@ -707,46 +583,46 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
-                    <CollapseBody style={{ height: 60 }}>
+                    <CollapseBody style={{height: 60}}>
                       <AccordionList
                         data={this.state.Bedrooms}
                         numColumns={5}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <TouchableOpacity
                             // onPress={() => alert(item.name)}
-                            onPress={() => this.setState({ bedroom: item.name })}
+                            onPress={() => this.setState({bedroom: item.name})}
                             style={{
                               height: 25,
                               borderRadius: 12.5,
                               paddingHorizontal: 10,
-                              backgroundColor: this.state.bedroom == item.name ? '#F6D700' : '#f2f2f2',
+                              backgroundColor:
+                                this.state.bedroom === item.name
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
                               shadowColor: '#000',
-                              shadowOffset: { width: 2, height: 2 },
+                              shadowOffset: {width: 2, height: 2},
                               shadowOpacity: 0.25,
                               shadowRadius: 3.84,
                               elevation: 5,
                               marginLeft: 10,
                               marginBottom: 10,
                               alignItems: 'center',
-                              justifyContent: 'center'
+                              justifyContent: 'center',
                             }}>
-                            <Text >{item.name}</Text>
+                            <Text>{item.name}</Text>
                           </TouchableOpacity>
                         )}
-
-
                       />
-
                     </CollapseBody>
                   </Collapse>
                   {/* ///////////////////////////////////// Choose sub Category /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Choose sub category
                         </Text>
                         <Image
@@ -754,7 +630,7 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -762,7 +638,7 @@ class LookingHouseSteps extends Component {
                         data={this.state.SubCategory}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -770,16 +646,21 @@ class LookingHouseSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              onPress={() => this.setState({ subCategory: item.name })}
+                              onPress={() =>
+                                this.setState({subCategory: item.name})
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: this.state.subCategory == item.name ? '#F6D700' : '#f2f2f2',
+                                backgroundColor:
+                                  this.state.subCategory === item.name
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -792,7 +673,7 @@ class LookingHouseSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -801,9 +682,9 @@ class LookingHouseSteps extends Component {
                   </Collapse>
                   {/* /////////////////////////////////////Property Status /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Search property status
                         </Text>
                         <Image
@@ -811,7 +692,7 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -819,7 +700,7 @@ class LookingHouseSteps extends Component {
                         data={this.state.PropertyStatus}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -827,16 +708,21 @@ class LookingHouseSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              onPress={() => this.setState({ propertyStatus: item.name })}
+                              onPress={() =>
+                                this.setState({propertyStatus: item.name})
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: this.state.propertyStatus == item.name ? '#F6D700' : '#f2f2f2',
+                                backgroundColor:
+                                  this.state.propertyStatus === item.name
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -849,7 +735,7 @@ class LookingHouseSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -858,9 +744,9 @@ class LookingHouseSteps extends Component {
                   </Collapse>
                   {/* ///////////////////////////////////// Enter location or sub urb town /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Enter location suburb town
                         </Text>
                         <Image
@@ -868,11 +754,11 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
-                      <View style={{ padding: 20 }}>
+                      <View style={{padding: 20}}>
                         <View
                           style={{
                             width: '100%',
@@ -884,14 +770,16 @@ class LookingHouseSteps extends Component {
                             alignItems: 'center',
                           }}>
                           <Image
-                            style={{ width: 20, height: 20, left: 20 }}
+                            style={{width: 20, height: 20, left: 20}}
                             source={require('../../assets/Icons/SearchIcon.png')}
                           />
                           <TextInput
                             placeholderTextColor="#000"
                             placeholder="Enter address city or neighboard"
-                            onChangeText={(text) => this.setState({ location: text })}
-                            style={{ left: 20, fontFamily: 'Lato-Regular' }}
+                            onChangeText={(text) =>
+                              this.setState({location: text})
+                            }
+                            style={{left: 20, fontFamily: 'Lato-Regular'}}
                           />
                         </View>
                       </View>
@@ -901,7 +789,7 @@ class LookingHouseSteps extends Component {
                   <Collapse>
                     <CollapseHeader>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Cost
                         </Text>
                         <Image
@@ -909,24 +797,23 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
-                      <View style={{ padding: 10, height: 100 }}>
+                      <View style={{padding: 10, height: 100}}>
                         <View
                           style={{
                             flexDirection: 'row',
                             justifyContent: 'flex-end',
                           }}>
-
                           <Text>KWD {this.state.min}</Text>
                           <Text>-{this.state.max}</Text>
                         </View>
                         <RangeSlider
                           // elevation={2}
-                          style={{ width: '100%', height: 70 }}
-                          gravity={'center'}
+                          style={{width: '100%', height: 70}}
+                          // gravity={'center'}
                           gravity="top"
                           min={100}
                           max={500}
@@ -936,7 +823,7 @@ class LookingHouseSteps extends Component {
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(low, high) => {
-                            this.setState({ min: low, max: high });
+                            this.setState({min: low, max: high});
                           }}
                         />
                       </View>
@@ -949,16 +836,25 @@ class LookingHouseSteps extends Component {
                       onPress={() => this.Step1Search()}
                       // onPress={() => alert("Step 1 pressed")}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Search</Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       // onPress={() => this.props.navigation.navigate('SearchHouseStep2')}
                       onPress={this.GoNextStep}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Next </Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
+                <Text
+                  style={{
+                    color: '#D33257',
+                    paddingTop: 8,
+                    paddingHorizontal: 32,
+                    textAlign: 'left',
+                  }}>
+                  {this.state.message}
+                </Text>
               </ProgressStep>
               {/*//////////////////////////////////// Second Sept ///////////////////////////////////////////*/}
               <ProgressStep
@@ -967,12 +863,12 @@ class LookingHouseSteps extends Component {
                 onNext={this.onNextStep}
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}>
-                <View style={{ top: 20 }}>
+                <View style={{top: 20}}>
                   {/* ///////////////////////////////////// Select more featrus/////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Select more features
                         </Text>
                         <Image
@@ -980,7 +876,7 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -988,7 +884,7 @@ class LookingHouseSteps extends Component {
                         data={this.state.Select_More_Featurs}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -997,17 +893,24 @@ class LookingHouseSteps extends Component {
                             }}>
                             <TouchableOpacity
                               // onPress={()=>this.setState({})}
-                              onPress={() => this.setState(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                              onPress={() =>
+                                this.setState((prev) => ({
+                                  ...prev,
+                                  [item.key]: !prev[item.key],
+                                }))
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 50,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: this.state[item.key] ? '#F6D700' : '#f2f2f2',
+                                backgroundColor: this.state[item.key]
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
                                 // backgroundColor:this.state.opticalfiber == true ? '#F6D700' : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -1020,7 +923,7 @@ class LookingHouseSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -1034,12 +937,12 @@ class LookingHouseSteps extends Component {
                       onPress={() => this.SearchStep2()}
                       // onPress={() => alert("Step 2 pressed")}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Search</Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={this.GoNextStep}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Next </Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -1051,12 +954,12 @@ class LookingHouseSteps extends Component {
                 onNext={this.onNextStep}
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}>
-                <View style={{ top: 20 }}>
+                <View style={{top: 20}}>
                   {/* ///////////////////////////////////// Slelect More Featurs /////////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader disabled style={{ height: 50 }}>
+                    <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Select more features
                         </Text>
                         <Image
@@ -1064,7 +967,7 @@ class LookingHouseSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -1074,7 +977,7 @@ class LookingHouseSteps extends Component {
                         data={this.state.Select_Services}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -1096,7 +999,7 @@ class LookingHouseSteps extends Component {
                                 backgroundColor: '#f2f2f2',
                                 // backgroundColor: this.state.index == item.index ? 'red' : 'green',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -1109,7 +1012,7 @@ class LookingHouseSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -1122,11 +1025,11 @@ class LookingHouseSteps extends Component {
                     {/* <TouchableOpacity style={styles.ApplyBtn}>
                                             <Text style={{fontFamily: 'Lato-Regular'}}>Apply</Text>
                                         </TouchableOpacity> */}
-                    <View></View>
+
                     <TouchableOpacity
                       onPress={() => this.SearchStep2()}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Search</Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -1137,7 +1040,7 @@ class LookingHouseSteps extends Component {
           {/* Bathroom Modal */}
 
           <Modal
-            style={{ margin: 0 }}
+            style={{margin: 0}}
             animationIn="slideInUp"
             animationOut="slideOutDown"
             animationInTiming={500}
@@ -1176,8 +1079,9 @@ class LookingHouseSteps extends Component {
                     width: '100%',
                     height: 1,
                     backgroundColor: '#cccccc',
-                  }}></View>
-                <View style={{ padding: 20, top: 40 }}>
+                  }}
+                />
+                <View style={{padding: 20, top: 40}}>
                   <View
                     style={{
                       flexDirection: 'row',
@@ -1185,22 +1089,22 @@ class LookingHouseSteps extends Component {
                       alignItems: 'center',
                     }}>
                     <TouchableOpacity
-                      disabled={this.state.BathroomCounter == 0}
+                      disabled={this.state.BathroomCounter === 0}
                       onPress={() => this.SubtaractBathroom()}
                       style={styles.LeftClickView}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 30 }}>-</Text>
+                      <Text style={{fontWeight: 'bold', fontSize: 30}}>-</Text>
                     </TouchableOpacity>
 
                     <View style={styles.TotalCountView}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 30 }}>
+                      <Text style={{fontWeight: 'bold', fontSize: 30}}>
                         {this.state.BathroomCounter}
                       </Text>
                     </View>
                     <TouchableOpacity
-                      disabled={this.state.BathroomCounter == 10}
+                      disabled={this.state.BathroomCounter === 10}
                       onPress={() => this.AddBathroom()}
                       style={styles.LeftClickView}>
-                      <Text style={{ fontWeight: 'bold', fontSize: 30 }}>+</Text>
+                      <Text style={{fontWeight: 'bold', fontSize: 30}}>+</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -1210,7 +1114,7 @@ class LookingHouseSteps extends Component {
 
           {/* Living Area Modal */}
           <Modal
-            style={{ margin: 0 }}
+            style={{margin: 0}}
             animationIn="slideInUp"
             animationOut="slideOutDown"
             animationInTiming={500}
@@ -1249,26 +1153,27 @@ class LookingHouseSteps extends Component {
                     width: '100%',
                     height: 1,
                     backgroundColor: '#cccccc',
-                  }}></View>
-                <View style={{ padding: 20, top: 40 }}>
+                  }}
+                />
+                <View style={{padding: 20, top: 40}}>
                   <View
                     style={{
                       justifyContent: 'space-around',
                       alignItems: 'center',
                     }}>
                     <View style={styles.TotalCountView}>
-                      <Text style={{ fontSize: 20, fontFamily: 'Lato-Bold' }}>
+                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
                         {this.state.rangeLow}
                       </Text>
-                      <Text style={{ fontSize: 20, fontFamily: 'Lato-Bold' }}>
+                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
                         -{this.state.rangeHigh}sq/ft
                       </Text>
                     </View>
 
                     <RangeSlider
                       // elevation={2}
-                      style={{ width: '100%', height: 70 }}
-                      gravity={'center'}
+                      style={{width: '100%', height: 70}}
+                      // gravity={'center'}
                       // thumbRadius={10}
                       gravity="top"
                       min={50}
@@ -1279,7 +1184,7 @@ class LookingHouseSteps extends Component {
                       selectionColor="#F6D700"
                       blankColor="#808080"
                       onValueChanged={(low, high) => {
-                        this.setState({ rangeLow: low, rangeHigh: high });
+                        this.setState({rangeLow: low, rangeHigh: high});
                       }}
                     />
                   </View>
@@ -1288,9 +1193,8 @@ class LookingHouseSteps extends Component {
             </View>
           </Modal>
 
-          {/* Slider Modal */}
           <Modal
-            style={{ margin: 0 }}
+            style={{margin: 0}}
             animationIn="slideInUp"
             animationOut="slideOutDown"
             animationInTiming={500}
@@ -1329,27 +1233,25 @@ class LookingHouseSteps extends Component {
                     width: '100%',
                     height: 1,
                     backgroundColor: '#cccccc',
-                  }}></View>
-                <View style={{ padding: 20, top: 40 }}>
+                  }}
+                />
+                <View style={{padding: 20, top: 40}}>
                   <View
                     style={{
                       justifyContent: 'space-around',
                       alignItems: 'center',
                     }}>
                     <View style={styles.TotalCountView}>
-                      <Text style={{ fontSize: 20, fontFamily: 'Lato-Bold' }}>
+                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
                         {this.state.rangeLow}
                       </Text>
-                      <Text style={{ fontSize: 20, fontFamily: 'Lato-Bold' }}>
+                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
                         -{this.state.rangeHigh}sq/ft
                       </Text>
                     </View>
 
                     <RangeSlider
-                      // elevation={2}
-                      style={{ width: '100%', height: 70 }}
-                      gravity={'center'}
-                      // thumbRadius={10}
+                      style={{width: '100%', height: 70}}
                       gravity="top"
                       min={50}
                       max={500}
@@ -1359,7 +1261,7 @@ class LookingHouseSteps extends Component {
                       selectionColor="#F6D700"
                       blankColor="#808080"
                       onValueChanged={(low, high) => {
-                        this.setState({ rangeLow: low, rangeHigh: high });
+                        this.setState({rangeLow: low, rangeHigh: high});
                       }}
                     />
                   </View>
@@ -1377,20 +1279,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     height: '100%',
     width: '100%',
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 3,
-    // },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
-
-    // elevation: 2,
   },
   HeaderView: {
-    height: 80,
+    height: 100,
     width: '100%',
     padding: 20,
+    paddingTop: 36,
     backgroundColor: '#000',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
@@ -1507,8 +1401,10 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-
     elevation: 5,
   },
 });
+
+LookingHouseSteps.contextType = UserContext;
+
 export default LookingHouseSteps;

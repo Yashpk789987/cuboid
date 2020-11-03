@@ -120,7 +120,11 @@ class LoginPage extends Component {
           if (res.status === 'fail' || res.status === 'error') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
-            this.context.setPayload({...res.data, isLoggedIn: true});
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('WelcomeScreen');
           }
         })
@@ -155,7 +159,11 @@ class LoginPage extends Component {
           if (res.status === 'fail') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
-            this.context.setPayload({...res.data, isLoggedIn: true});
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('WelcomeScreen');
           }
         })
@@ -188,7 +196,11 @@ class LoginPage extends Component {
           if (res.status === 'fail' || res.status === 'error') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
-            this.context.setPayload({...res.data, isLoggedIn: true});
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('WelcomeScreen');
           }
         })
@@ -413,7 +425,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     resizeMode: 'contain',
-    // marginRight: 15
   },
 });
 

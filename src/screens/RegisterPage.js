@@ -166,7 +166,11 @@ class RegisterPage extends Component {
           if (res.status === 'fail') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
-            this.context.setPayload({...res.data, isLoggedIn: true});
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('LoginPage');
           }
         })
@@ -201,6 +205,11 @@ class RegisterPage extends Component {
           if (res.status === 'fail') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('WelcomeScreen');
           }
         })
@@ -233,8 +242,11 @@ class RegisterPage extends Component {
           if (res.status === 'fail' || res.status === 'error') {
             this.setState({message: res.message});
           } else if (res.status === 'success') {
-            console.log(res);
-            this.context.setPayload({...res.data, isLoggedIn: true});
+            this.context.setPayload({
+              ...res.data,
+              token: res.token,
+              isLoggedIn: true,
+            });
             this.props.navigation.navigate('WelcomeScreen');
           }
         })
@@ -274,16 +286,6 @@ class RegisterPage extends Component {
       },
     );
   };
-
-  // componentDidMount() {
-  //   StatusBar.setTranslucent(true);
-  //   StatusBar.setBackgroundColor('transparent');
-  // }
-
-  // componentWillUnmount() {
-  //   StatusBar.setTranslucent(false);
-  //   StatusBar.setBackgroundColor('black');
-  // }
 
   render() {
     const {

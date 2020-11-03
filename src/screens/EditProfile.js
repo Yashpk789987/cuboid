@@ -9,18 +9,96 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import {pattern} from '../common/email.regex';
 
 import FooterPage from '../common/FooterPage';
+import {Loader} from '../common/Loader';
 import {UserContext} from '../contexts/UserContext';
 
 function EditProfile(props) {
   const {
-    payload: {user},
+    payload: {user, token, isLoggedIn},
+    setPayload,
   } = useContext(UserContext);
   const [form, setForm] = useState(user);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const update = async () => {
+    if (form.firstname === '') {
+      setMessage('please provide first name');
+    } else if (form.lastname === '') {
+      setMessage('please provide last name');
+    } else if (!pattern.test(form.email)) {
+      setMessage('please provide valid email');
+    } else if (
+      !form.mobilenumber ||
+      (form.mobilenumber && form.mobilenumber.length < 10) ||
+      (form.mobilenumber && form.mobilenumber.length > 10)
+    ) {
+      setMessage('please provide valid phone number');
+    } else {
+      setMessage('');
+      setLoading(true);
+      fetch('https://cuboidtechnologies.com/api/users/editprofile', {
+        method: 'patch',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          setLoading(false);
+          if (result.status === 'success') {
+            setPayload({token, isLoggedIn: true, user: result.data.user});
+          } else {
+            setMessage(result.message);
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+  const openImageAndUpload = async () => {
+    ImageCropPicker.openPicker({
+      includeBase64: true,
+    })
+      .then((image) => {
+        setLoading(true);
+        const data = {image: `data:image/jpeg;base64,${image.data}`};
+        fetch('https://cuboidtechnologies.com/api/users/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+          .then((res) => res.json())
+          .then((result) => {
+            setLoading(false);
+            if (result.status === 'success') {
+              setPayload({
+                token,
+                isLoggedIn,
+                user: {...user, imagepath: result.url},
+              });
+            }
+          })
+          .catch((err) => {
+            setLoading(false);
+            console.log(err);
+          });
+      })
+      .catch((e) => console.log(e));
+  };
   return (
     <View style={styles.container}>
-      <ScrollView style={{marginBottom: 60}}>
+      {loading && <Loader />}
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={{marginBottom: 60}}>
         <View style={{height: 150, paddingTop: 16, backgroundColor: '#000'}}>
           <View style={{flexDirection: 'row', padding: 15}}>
             <TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -38,12 +116,24 @@ function EditProfile(props) {
         </View>
         <View style={styles.MainView}>
           <View style={{flexDirection: 'row', width: '100%'}}>
-            <View style={{width: '85%', marginTop: -85, left: 30}}>
+            <TouchableOpacity
+              onPress={openImageAndUpload}
+              style={{width: '85%', marginTop: -50, left: '30%'}}>
               <Image
-                style={{width: 200, height: 200, alignSelf: 'center'}}
-                source={require('../../assets/Icons/UserProfile.png')}
+                style={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 60,
+                  resizeMode: 'cover',
+                  alignSelf: 'center',
+                }}
+                source={
+                  user.imagepath
+                    ? {uri: user.imagepath}
+                    : require('../../assets/Icons/no-data.png')
+                }
               />
-            </View>
+            </TouchableOpacity>
             <View style={{width: '15%'}}>
               <TouchableOpacity>
                 <Image
@@ -91,7 +181,10 @@ function EditProfile(props) {
             placeholderTextColor="#000"
           />
           <TextInput
-            value={`+91 9399729705`}
+            value={`+91 ${form.mobilenumber ? form.mobilenumber : ''}`}
+            onChangeText={(text) =>
+              setForm((f) => ({...f, mobilenumber: text.substring(4)}))
+            }
             style={styles.EditProfile}
             placeholder="Phone Number"
             placeholderTextColor="#000"
@@ -104,8 +197,17 @@ function EditProfile(props) {
             placeholderTextColor="#000"
           />
 
-          <View style={{padding: 10, marginTop: 50}}>
-            <TouchableOpacity style={styles.UpdateBtn}>
+          <Text
+            style={{
+              color: '#D33257',
+              paddingTop: 8,
+              textAlign: 'center',
+            }}>
+            {message ? message : ''}
+          </Text>
+
+          <View style={{padding: 10, marginTop: 8}}>
+            <TouchableOpacity onPress={update} style={styles.UpdateBtn}>
               <Text style={{fontFamily: 'Lato-Regular'}}>Update</Text>
             </TouchableOpacity>
           </View>
@@ -161,6 +263,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   UserNameView: {
+    marginTop: 32,
     justifyContent: 'center',
     width: '100%',
     alignItems: 'center',
