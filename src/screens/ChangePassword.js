@@ -10,6 +10,7 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import {StackActions} from '@react-navigation/native';
 
 import FooterPage from '../common/FooterPage';
 import {Loader} from '../common/Loader';
@@ -40,10 +41,10 @@ function ChangePassword(props) {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
         setLoading(false);
         if (result.status === 'success') {
-          // setPayload({token, isLoggedIn: true, user: result.data.user});
+          props.navigation.dispatch(StackActions.popToTop());
+          logout();
         } else {
           setMessage(result.message);
         }

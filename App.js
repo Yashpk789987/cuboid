@@ -102,7 +102,7 @@ function HomeScreenStack() {
   );
 }
 
-function App() {
+function App(props) {
   const [payload, setPayload] = useState(initialState);
   const [loading, setLoading] = useState(true);
 

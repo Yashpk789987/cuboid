@@ -271,7 +271,7 @@ class RegisterPage extends Component {
                 accessToken: token,
                 parameters: {
                   fields: {
-                    string: 'email,first_name,last_name,picture',
+                    string: 'email,first_name,last_name,picture.type(large)',
                   },
                 },
               },
