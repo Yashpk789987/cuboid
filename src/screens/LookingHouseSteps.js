@@ -1,5 +1,5 @@
-/* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
+
 import React, {Component} from 'react';
 import {
   View,
@@ -9,7 +9,6 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import axios from 'axios';
 
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -30,24 +29,38 @@ class LookingHouseSteps extends Component {
     super();
     this.state = {
       cost: {
-        max: 100,
-        min: 50,
+        max: 90000,
+        min: 10,
       },
       area: '4000',
       mainCategory: '',
       subCategory: '',
       propertyStatus: '',
       location: '',
-      bedroom: '',
-      balcony: false,
-      borehole: false,
-      cctv: false,
-      disabilityfeature: false,
-      fireplace: false,
-      maturegarden: false,
-      opticalfiber: false,
-      partyarea: false,
+      bedroom: '4',
+      balcony: undefined,
+      borehole: undefined,
+      cctv: undefined,
+      disabilityfeature: undefined,
+      fireplace: undefined,
+      maturegarden: undefined,
+      opticalfiber: undefined,
+      partyarea: undefined,
+      gym: undefined,
+      livingsize: {
+        min: 50,
+        max: 5000,
+      },
 
+      kitchensize: {
+        min: 50,
+        max: 5000,
+      },
+
+      gardensize: {
+        min: 50,
+        max: 5000,
+      },
       AreaName: '',
       featurename: '',
       featurearray: [],
@@ -55,6 +68,12 @@ class LookingHouseSteps extends Component {
       isModalVisible: false,
       isModalVisible1: false,
       BathroomCounter: 0,
+      bathrooms: 0,
+      bathtab: 0,
+      steambath: 0,
+      lift: 0,
+      parking: 0,
+
       TotalBathrooms: '',
       WeSelect: '',
       AreaSelect: '',
@@ -64,43 +83,45 @@ class LookingHouseSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/Buy.png'),
           name: 'Buy',
+          code: 'buy',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Rent.png'),
-          name: ' Rent',
+          name: 'Rent',
+          code: 'rent',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/FullyFurnished1.png'),
           name: 'Fully Furnished',
+          code: 'rent',
         },
       ],
       SubCategory: [
         {
           index: '0',
           imageurl: require('../../assets/Icons/Gated.png'),
-          name: 'Geted',
+          name: 'Gated',
+          code: 'gated',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Own.png'),
-          name: ' Own Compound',
+          name: 'Stand Alone',
+          code: 'standalone',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Apartment1.png'),
           name: 'Apartment',
+          code: 'apartment',
         },
       ],
       Bedrooms: [
         {
-          index: '0',
-          name: ' Any ',
-        },
-        {
           index: '1',
-          name: ' 1 ',
+          name: '1',
         },
         {
           index: '2',
@@ -120,16 +141,19 @@ class LookingHouseSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/Completed.png'),
           name: 'Completed',
+          code: 'completed',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Offplan.png'),
-          name: '  Off plan',
+          name: 'Off plan',
+          code: 'offplan',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Refurbished.png'),
-          name: '  Refurbished',
+          name: 'Refurbished',
+          code: 'refurbished',
         },
       ],
       Select_More_Featurs: [
@@ -139,33 +163,14 @@ class LookingHouseSteps extends Component {
           name: 'Optical Fiber',
           key: 'opticalfiber',
         },
-        // {
-        //   index: '1',
-        //   imageurl: require('../../assets/Icons/SwimingPool.png'),
-        //   name: 'Swiming',
-        //   key:''
-        // },
+
         {
           index: '1',
           imageurl: require('../../assets/Icons/FirePlace.png'),
-          name: '  Fire Place',
+          name: ' Fire Place',
           key: 'fireplace',
         },
-        // {
-        //   index: '3',
-        //   imageurl: require('../../assets/Icons/PetAllow.png'),
-        //   name: ' Pet Allow',
-        // },
-        // {
-        //   index: '4',
-        //   imageurl: require('../../assets/Icons/SolarWater.png'),
-        //   name: 'Solar Water',
-        // },
-        // {
-        //   index: '5',
-        //   imageurl: require('../../assets/Icons/WaterFront.png'),
-        //   name: ' Water Front',
-        // },
+
         {
           index: '2',
           imageurl: require('../../assets/Icons/CCTV.png'),
@@ -184,11 +189,6 @@ class LookingHouseSteps extends Component {
           name: ' Disability',
           key: 'disabilityfeature',
         },
-        // {
-        //   index: '9',
-        //   imageurl: require('../../assets/Icons/MatureGarden.png'),
-        //   name: 'CCTV',
-        // },
         {
           index: '5',
           imageurl: require('../../assets/Icons/MatureGarden.png'),
@@ -212,7 +212,7 @@ class LookingHouseSteps extends Component {
         {
           index: '0',
           imageurl: require('../../assets/Icons/Bathrooms.png'),
-          name: 'Bathrooms ',
+          name: 'Bathrooms',
           area: false,
         },
         {
@@ -248,7 +248,7 @@ class LookingHouseSteps extends Component {
         {
           index: '6',
           imageurl: require('../../assets/Icons/LivingArea.png'),
-          name: 'LivingArea',
+          name: 'Living Area',
           area: true,
         },
         {
@@ -260,24 +260,22 @@ class LookingHouseSteps extends Component {
         {
           index: '8',
           imageurl: require('../../assets/Icons/Garden.png'),
-          name: ' Garden Area',
+          name: 'Garden Area',
           area: true,
         },
       ],
       message: '',
+      params: undefined,
+      url: undefined,
     };
   }
-
-  //////////////// Change Search Step ////////////
 
   GoNextStep = () => {
     this.setState({
       index: this.state.index + 1,
     });
   };
-  //////////////// Change Search Step ////////////
 
-  //////////////// Previous Search Step ////////////
   GoPreviousStep = () => {
     this.setState({
       index: this.state.index - 1,
@@ -286,16 +284,14 @@ class LookingHouseSteps extends Component {
       this.props.navigation.navigate('WelcomeScreen');
     }
   };
-  //////////////// Previous Search Step ////////////
 
-  //////////////// Counter Function's ////////////
   AddBathroom = () => {
     this.setState({BathroomCounter: this.state.BathroomCounter + 1});
   };
+
   SubtaractBathroom = () => {
     this.setState({BathroomCounter: this.state.BathroomCounter - 1});
   };
-  //////////////// Counter Function's ////////////
 
   closemodal = () => {
     this.setState({
@@ -305,6 +301,10 @@ class LookingHouseSteps extends Component {
   };
 
   toggleModal = (name, area) => {
+    if (name === 'GYM') {
+      this.setState((p) => ({...p, gym: !p.gym}));
+      return;
+    }
     if (area === false) {
       this.setState({
         isModalVisible: !this.state.isModalVisible,
@@ -318,117 +318,162 @@ class LookingHouseSteps extends Component {
     }
   };
 
-  //////////////// //////////////////////  SEARCH FLIPBOOK WITH STEP 1 DATA ////////////////////////////////////////////
-  Step1Search = () => {
+  _searchStep1 = (nextPage = false) => {
     this.setState({message: ''});
-    const {mainCategory} = this.state;
+    const {
+      cost: {max, min},
+      bedroom,
+      subCategory,
+      propertyStatus,
+      AreaName,
+      mainCategory,
+    } = this.state;
     if (mainCategory === '') {
       this.setState({message: '* Required MainCategory'});
-    }
-    const URL = 'http://192.168.0.103:4000/api/search/house-search-1';
-    axios({
-      method: 'post',
-      url: URL,
-      data: {
+    } else if (subCategory === '') {
+      this.setState({message: '* Required SubCategory'});
+    } else if (propertyStatus === '') {
+      this.setState({message: '* Required property status'});
+    } else {
+      let data = {
         cost: {
-          max: this.state.max,
-          min: this.state.min,
+          max,
+          min,
         },
         attributes: {
-          area: '4000',
-          mainCategory: this.state.mainCategory,
-          subCategory: this.state.subCategory,
-          propertyStatus: this.state.propertyStatus,
-          location: this.state.location,
-          bedroom: this.state.bedroom,
-          balcony: this.state.balcony,
-          borehole: this.state.borehole,
-          cctv: this.state.cctv,
-          disabilityfeature: this.state.disabilityfeature,
-          fireplace: this.state.fireplace,
-          maturegarden: this.state.maturegarden,
-          opticalfiber: this.state.opticalfiber,
-          partyarea: this.state.partyarea,
+          bedroom: bedroom,
+          mainCategory: mainCategory,
+          subCategory: subCategory,
+          propertyStatus: propertyStatus,
         },
-      },
-    })
-      /////////////////////////////////// AFTER RUN THE API FIND THE RESPONSE OF API/////////////////////////////////////
-      .then((response) => {
-        console.log(response);
-        const data = response.data;
-        // console.log(data);
-        const status = data.status;
+      };
+      if (AreaName !== '') {
+        data = {...data, Area: AreaName};
+      }
+      const url = 'https://cuboidtechnologies.com/api/search/house-search-1';
 
-        if (status === 'success') {
-          var Alldata = {
-            cost: {
-              max: this.state.max,
-              min: this.state.min,
-            },
-            attributes: {
-              area: '4000',
-              mainCategory: this.state.mainCategory,
-              subCategory: this.state.subCategory,
-              propertyStatus: this.state.propertyStatus,
-              location: this.state.location,
-              bedroom: this.state.bedroom,
-              balcony: this.state.balcony,
-              borehole: this.state.borehole,
-              cctv: this.state.cctv,
-              disabilityfeature: this.state.disabilityfeature,
-              fireplace: this.state.fireplace,
-              maturegarden: this.state.maturegarden,
-              opticalfiber: this.state.opticalfiber,
-              partyarea: this.state.partyarea,
-            },
-          };
-          // console.log(Alldata);
-          this.props.navigation.navigate('SearchFlipbook', {data: Alldata});
-        } else {
-          alert('Page Not Found');
-        }
-      })
-      /////////////////////////////////// ERROR ALERT API NOT RUN ///////////////////////////////////////////////////
-      .catch(function (error) {
-        console.log(error);
-      });
+      if (nextPage) {
+        this.setState({params: data, url});
+        this.setState({
+          index: this.state.index + 1,
+        });
+      } else {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params: data,
+          url,
+        });
+      }
+    }
   };
 
-  //////////////// //////////////////////  SEARCH FLIPBOOK WITH STEP 2 DATA ////////////////////////////////////////////
-  SearchStep2 = () => {
-    console.log({
-      cost: {
-        max: this.state.max,
-        min: this.state.min,
-      },
-      attributes: {
-        area: '4000',
-        mainCategory: this.state.mainCategory,
-        subCategory: this.state.subCategory,
-        propertyStatus: this.state.propertyStatus,
-        location: this.state.location,
-        bedroom: this.state.bedroom,
-        balcony: this.state.balcony,
-        borehole: this.state.borehole,
-        cctv: this.state.cctv,
-        disabilityfeature: this.state.disabilityfeature,
-        fireplace: this.state.fireplace,
-        maturegarden: this.state.maturegarden,
-        opticalfiber: this.state.opticalfiber,
-        partyarea: this.state.partyarea,
-      },
-      livingsize: {
-        minliv: this.state.rangeLow,
-        maxliv: this.state.rangeLow,
-      },
-      kitchensize: {
-        minkit: 10,
-        maxkit: 500,
-      },
-      gardensize: {
-        mingarden: 10,
-        maxgarden: 500,
-      },
+  _searchStep2 = async (next = false) => {
+    const {
+      opticalfiber,
+      fireplace,
+      cctv,
+      borehole,
+      disabilityfeature,
+      maturegarden,
+      balcony,
+      partyarea,
+    } = this.state;
+
+    let data = {};
+
+    if (opticalfiber) {
+      data = {...data, opticalfiber};
+    }
+
+    if (fireplace) {
+      data = {...data, fireplace};
+    }
+    if (cctv) {
+      data = {...data, cctv};
+    }
+    if (borehole) {
+      data = {...data, borehole};
+    }
+    if (disabilityfeature) {
+      data = {...data, disabilityfeature};
+    }
+    if (maturegarden) {
+      data = {...data, maturegarden};
+    }
+    if (balcony) {
+      data = {...data, balcony};
+    }
+    if (partyarea) {
+      data = {...data, partyarea};
+    }
+    const url = 'https://cuboidtechnologies.com/api/search/house-search-1';
+    if (next) {
+      await this.setState((prev) => ({
+        ...prev,
+        params: {
+          ...prev.params,
+          attributes: {...prev.params.attributes, ...data},
+        },
+        url,
+      }));
+      this.setState({
+        index: this.state.index + 1,
+      });
+    } else {
+      const params = {
+        ...this.state.params,
+        attributes: {...this.state.params.attributes, ...data},
+      };
+      this.props.navigation.navigate('SearchFlipbook', {
+        params,
+        url,
+      });
+    }
+  };
+
+  _searchStep3 = async () => {
+    const {
+      bathrooms,
+      steambath,
+      lift,
+      bathtab,
+      parking,
+      gym,
+      params,
+      livingsize,
+      kitchensize,
+      gardensize,
+    } = this.state;
+    let data = {};
+    if (bathrooms > 0) {
+      data = {...data, bathrooms};
+    }
+    if (steambath > 0) {
+      data = {...data, steambath};
+    }
+    if (lift > 0) {
+      data = {...data, lift};
+    }
+    if (bathtab > 0) {
+      data = {...data, bathtab};
+    }
+    if (parking > 0) {
+      data = {...data, parking};
+    }
+    if (gym) {
+      data = {...data, gym};
+    }
+
+    const finalData = {
+      ...params,
+      attributes: {...params.attributes, ...data},
+      livingsize,
+      kitchensize,
+      gardensize,
+    };
+    const url = 'https://cuboidtechnologies.com/api/search/house-search-2';
+    this.props.navigation.navigate('SearchFlipbook', {
+      params: finalData,
+      url,
     });
   };
 
@@ -439,6 +484,7 @@ class LookingHouseSteps extends Component {
         user: {firstname},
       },
     } = this.context;
+
     const progressStepsStyle = {
       activeStepIconBorderColor: '#000',
       activeLabelColor: '#000',
@@ -450,6 +496,7 @@ class LookingHouseSteps extends Component {
       width: 100,
       borderRadius: 20,
     };
+    const {WeSelect} = this.state;
 
     return (
       <View style={{flex: 1}}>
@@ -492,16 +539,12 @@ class LookingHouseSteps extends Component {
             </View>
           </View>
 
-          {/*/////////////////////////////////////// / Header end //////////////////////////////////// */}
           <View style={{width: '100%'}}>
-            {/* ////////////////////////////// Main ProcessSteps start Here  /////////////////////////  */}
             <ProgressSteps
               {...progressStepsStyle}
               activeStep={this.state.index}>
-              {/* //////////////////////////////////////// FirstStep Start Here ////////////////////////////////////////// */}
               <ProgressStep
                 gravity="true"
-                // container={width=30,height=30}
                 activeLabelColor="#000"
                 label="Step 1"
                 onNext={this.onPaymentStepComplete}
@@ -509,7 +552,6 @@ class LookingHouseSteps extends Component {
                 scrollViewProps={this.defaultScrollViewProps}
                 removeBtnRow={true}>
                 <View style={{top: 20}}>
-                  {/* ///////////////////////////////////// Choose Main One Category /////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -538,7 +580,7 @@ class LookingHouseSteps extends Component {
                             }}>
                             <TouchableOpacity
                               onPress={() =>
-                                this.setState({mainCategory: item.name})
+                                this.setState({mainCategory: item.code})
                               }
                               style={{
                                 width: 100,
@@ -547,7 +589,7 @@ class LookingHouseSteps extends Component {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 backgroundColor:
-                                  this.state.mainCategory === item.name
+                                  this.state.mainCategory === item.code
                                     ? '#F6D700'
                                     : '#f2f2f2',
                                 shadowColor: '#000',
@@ -571,7 +613,6 @@ class LookingHouseSteps extends Component {
                       />
                     </CollapseBody>
                   </Collapse>
-                  {/* ///////////////////////////////////// Bathrooms /////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -592,14 +633,13 @@ class LookingHouseSteps extends Component {
                         numColumns={5}
                         renderItem={({item}) => (
                           <TouchableOpacity
-                            // onPress={() => alert(item.name)}
-                            onPress={() => this.setState({bedroom: item.name})}
+                            onPress={() => this.setState({bedroom: item.index})}
                             style={{
                               height: 25,
                               borderRadius: 12.5,
                               paddingHorizontal: 10,
                               backgroundColor:
-                                this.state.bedroom === item.name
+                                this.state.bedroom === item.index
                                   ? '#F6D700'
                                   : '#f2f2f2',
                               shadowColor: '#000',
@@ -618,7 +658,6 @@ class LookingHouseSteps extends Component {
                       />
                     </CollapseBody>
                   </Collapse>
-                  {/* ///////////////////////////////////// Choose sub Category /////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -647,7 +686,7 @@ class LookingHouseSteps extends Component {
                             }}>
                             <TouchableOpacity
                               onPress={() =>
-                                this.setState({subCategory: item.name})
+                                this.setState({subCategory: item.code})
                               }
                               style={{
                                 width: 100,
@@ -656,7 +695,7 @@ class LookingHouseSteps extends Component {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 backgroundColor:
-                                  this.state.subCategory === item.name
+                                  this.state.subCategory === item.code
                                     ? '#F6D700'
                                     : '#f2f2f2',
                                 shadowColor: '#000',
@@ -680,7 +719,6 @@ class LookingHouseSteps extends Component {
                       />
                     </CollapseBody>
                   </Collapse>
-                  {/* /////////////////////////////////////Property Status /////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -709,7 +747,7 @@ class LookingHouseSteps extends Component {
                             }}>
                             <TouchableOpacity
                               onPress={() =>
-                                this.setState({propertyStatus: item.name})
+                                this.setState({propertyStatus: item.code})
                               }
                               style={{
                                 width: 100,
@@ -718,7 +756,7 @@ class LookingHouseSteps extends Component {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 backgroundColor:
-                                  this.state.propertyStatus === item.name
+                                  this.state.propertyStatus === item.code
                                     ? '#F6D700'
                                     : '#f2f2f2',
                                 shadowColor: '#000',
@@ -742,7 +780,6 @@ class LookingHouseSteps extends Component {
                       />
                     </CollapseBody>
                   </Collapse>
-                  {/* ///////////////////////////////////// Enter location or sub urb town /////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -807,40 +844,35 @@ class LookingHouseSteps extends Component {
                             flexDirection: 'row',
                             justifyContent: 'flex-end',
                           }}>
-                          <Text>KWD {this.state.min}</Text>
-                          <Text>-{this.state.max}</Text>
+                          <Text>KSH {this.state.cost.min}</Text>
+                          <Text>-{this.state.cost.max}</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
                           style={{width: '100%', height: 70}}
-                          // gravity={'center'}
                           gravity="top"
-                          min={100}
-                          max={500}
+                          min={10}
+                          max={90000}
                           step={50}
                           handleBorderWidth={1}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(low, high) => {
-                            this.setState({min: low, max: high});
+                            this.setState({cost: {min: low, max: high}});
                           }}
                         />
                       </View>
                     </CollapseBody>
                   </Collapse>
 
-                  {/* Apply btn */}
                   <View style={styles.ApplyView}>
                     <TouchableOpacity
-                      onPress={() => this.Step1Search()}
-                      // onPress={() => alert("Step 1 pressed")}
+                      onPress={() => this._searchStep1()}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      // onPress={() => this.props.navigation.navigate('SearchHouseStep2')}
-                      onPress={this.GoNextStep}
+                      onPress={() => this._searchStep1(true)}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                     </TouchableOpacity>
@@ -856,7 +888,6 @@ class LookingHouseSteps extends Component {
                   {this.state.message}
                 </Text>
               </ProgressStep>
-              {/*//////////////////////////////////// Second Sept ///////////////////////////////////////////*/}
               <ProgressStep
                 label="Step 2"
                 removeBtnRow={true}
@@ -864,7 +895,6 @@ class LookingHouseSteps extends Component {
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}>
                 <View style={{top: 20}}>
-                  {/* ///////////////////////////////////// Select more featrus/////////////////////////////////// */}
                   <Collapse>
                     <CollapseHeader disabled style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
@@ -892,7 +922,6 @@ class LookingHouseSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={()=>this.setState({})}
                               onPress={() =>
                                 this.setState((prev) => ({
                                   ...prev,
@@ -908,7 +937,7 @@ class LookingHouseSteps extends Component {
                                 backgroundColor: this.state[item.key]
                                   ? '#F6D700'
                                   : '#f2f2f2',
-                                // backgroundColor:this.state.opticalfiber == true ? '#F6D700' : '#f2f2f2',
+
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
@@ -931,16 +960,14 @@ class LookingHouseSteps extends Component {
                     </CollapseBody>
                   </Collapse>
 
-                  {/* Apply Btn's */}
                   <View style={styles.ApplyView}>
                     <TouchableOpacity
-                      onPress={() => this.SearchStep2()}
-                      // onPress={() => alert("Step 2 pressed")}
+                      onPress={() => this._searchStep2()}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={this.GoNextStep}
+                      onPress={() => this._searchStep2(true)}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                     </TouchableOpacity>
@@ -971,8 +998,6 @@ class LookingHouseSteps extends Component {
                     </CollapseHeader>
 
                     <CollapseBody>
-                      {/* Select more featurs   */}
-
                       <AccordionList
                         data={this.state.Select_Services}
                         numColumns={3}
@@ -985,19 +1010,19 @@ class LookingHouseSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
                               onPress={() =>
                                 this.toggleModal(item.name, item.area)
                               }
-                              // onPress={() => this.openModals(item.name)}
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
-                                // backgroundColor: this.state.index == item.index ? 'red' : 'green',
+                                backgroundColor:
+                                  item.name === 'GYM' && this.state.gym === true
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
@@ -1019,15 +1044,9 @@ class LookingHouseSteps extends Component {
                       />
                     </CollapseBody>
                   </Collapse>
-
-                  {/* Apply Btn's */}
                   <View style={styles.ApplyView}>
-                    {/* <TouchableOpacity style={styles.ApplyBtn}>
-                                            <Text style={{fontFamily: 'Lato-Regular'}}>Apply</Text>
-                                        </TouchableOpacity> */}
-
                     <TouchableOpacity
-                      onPress={() => this.SearchStep2()}
+                      onPress={() => this._searchStep3()}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
@@ -1036,8 +1055,6 @@ class LookingHouseSteps extends Component {
               </ProgressStep>
             </ProgressSteps>
           </View>
-
-          {/* Bathroom Modal */}
 
           <Modal
             style={{margin: 0}}
@@ -1061,7 +1078,6 @@ class LookingHouseSteps extends Component {
                   bottom: 0,
                   position: 'absolute',
                   backgroundColor: '#fff',
-                  // alignItems: 'center',
                 }}>
                 <View
                   style={{
@@ -1069,7 +1085,7 @@ class LookingHouseSteps extends Component {
                     justifyContent: 'space-between',
                     padding: 10,
                   }}>
-                  <Text>{this.state.WeSelect}</Text>
+                  <Text>{WeSelect}</Text>
                   <TouchableOpacity onPress={() => this.closemodal()}>
                     <Text>Close</Text>
                   </TouchableOpacity>
@@ -1088,31 +1104,192 @@ class LookingHouseSteps extends Component {
                       justifyContent: 'space-around',
                       alignItems: 'center',
                     }}>
-                    <TouchableOpacity
-                      disabled={this.state.BathroomCounter === 0}
-                      onPress={() => this.SubtaractBathroom()}
-                      style={styles.LeftClickView}>
-                      <Text style={{fontWeight: 'bold', fontSize: 30}}>-</Text>
-                    </TouchableOpacity>
+                    {WeSelect === 'Bathrooms' && (
+                      <>
+                        <TouchableOpacity
+                          disabled={this.state.bathrooms === 0}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              bathrooms: p.bathrooms - 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            -
+                          </Text>
+                        </TouchableOpacity>
 
-                    <View style={styles.TotalCountView}>
-                      <Text style={{fontWeight: 'bold', fontSize: 30}}>
-                        {this.state.BathroomCounter}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      disabled={this.state.BathroomCounter === 10}
-                      onPress={() => this.AddBathroom()}
-                      style={styles.LeftClickView}>
-                      <Text style={{fontWeight: 'bold', fontSize: 30}}>+</Text>
-                    </TouchableOpacity>
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            {this.state.bathrooms}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          disabled={this.state.BathroomCounter === 10}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              bathrooms: p.bathrooms + 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {WeSelect === 'SteamBath' && (
+                      <>
+                        <TouchableOpacity
+                          disabled={this.state.steambath === 0}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              steambath: p.steambath - 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            -
+                          </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            {this.state.steambath}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          disabled={this.state.steambath === 10}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              steambath: p.steambath + 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {WeSelect === 'Lift' && (
+                      <>
+                        <TouchableOpacity
+                          disabled={this.state.lift === 0}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              lift: p.lift - 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            -
+                          </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            {this.state.lift}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          disabled={this.state.lift === 10}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              lift: p.lift + 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {WeSelect === 'BathTub' && (
+                      <>
+                        <TouchableOpacity
+                          disabled={this.state.bathtab === 0}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              bathtab: p.bathtab - 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            -
+                          </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            {this.state.bathtab}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          disabled={this.state.bathtab === 10}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              bathtab: p.bathtab + 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                    {WeSelect === 'Parking' && (
+                      <>
+                        <TouchableOpacity
+                          disabled={this.state.parking === 0}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              parking: p.parking - 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            -
+                          </Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            {this.state.parking}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          disabled={this.state.parking === 10}
+                          onPress={() =>
+                            this.setState((p) => ({
+                              ...p,
+                              parking: p.parking + 1,
+                            }))
+                          }
+                          style={styles.LeftClickView}>
+                          <Text style={{fontWeight: 'bold', fontSize: 30}}>
+                            +
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
                   </View>
                 </View>
               </View>
             </View>
           </Modal>
 
-          {/* Living Area Modal */}
           <Modal
             style={{margin: 0}}
             animationIn="slideInUp"
@@ -1135,7 +1312,6 @@ class LookingHouseSteps extends Component {
                   bottom: 0,
                   position: 'absolute',
                   backgroundColor: '#fff',
-                  // alignItems: 'center',
                 }}>
                 <View
                   style={{
@@ -1161,109 +1337,102 @@ class LookingHouseSteps extends Component {
                       justifyContent: 'space-around',
                       alignItems: 'center',
                     }}>
-                    <View style={styles.TotalCountView}>
-                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
-                        {this.state.rangeLow}
-                      </Text>
-                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
-                        -{this.state.rangeHigh}sq/ft
-                      </Text>
-                    </View>
+                    {this.state.AreaSelect === 'Living Area' && (
+                      <>
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            {this.state.livingsize.min}
+                          </Text>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            -{this.state.livingsize.max}sq/ft
+                          </Text>
+                        </View>
 
-                    <RangeSlider
-                      // elevation={2}
-                      style={{width: '100%', height: 70}}
-                      // gravity={'center'}
-                      // thumbRadius={10}
-                      gravity="top"
-                      min={50}
-                      max={500}
-                      step={50}
-                      handleBorderWidth={1}
-                      handleBorderColor="#F6D700"
-                      selectionColor="#F6D700"
-                      blankColor="#808080"
-                      onValueChanged={(low, high) => {
-                        this.setState({rangeLow: low, rangeHigh: high});
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-            </View>
-          </Modal>
+                        <RangeSlider
+                          style={{width: '100%', height: 70}}
+                          gravity="top"
+                          min={50}
+                          max={5000}
+                          step={50}
+                          handleBorderWidth={1}
+                          handleBorderColor="#F6D700"
+                          selectionColor="#F6D700"
+                          blankColor="#808080"
+                          onValueChanged={(low, high) => {
+                            this.setState({
+                              livingsize: {
+                                min: low,
+                                max: high,
+                              },
+                            });
+                          }}
+                        />
+                      </>
+                    )}
+                    {this.state.AreaSelect === 'Kitchen Area' && (
+                      <>
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            {this.state.kitchensize.min}
+                          </Text>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            -{this.state.kitchensize.max}sq/ft
+                          </Text>
+                        </View>
 
-          <Modal
-            style={{margin: 0}}
-            animationIn="slideInUp"
-            animationOut="slideOutDown"
-            animationInTiming={500}
-            isVisible={this.state.isModalVisible1}>
-            <View
-              style={{
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                alignItems: 'center',
-              }}>
-              <View
-                style={{
-                  borderTopRightRadius: 20,
-                  borderTopLeftRadius: 20,
-                  height: 400,
-                  width: '100%',
-                  bottom: 0,
-                  position: 'absolute',
-                  backgroundColor: '#fff',
-                  // alignItems: 'center',
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    padding: 10,
-                  }}>
-                  <Text>{this.state.AreaSelect}</Text>
-                  <TouchableOpacity onPress={() => this.closemodal()}>
-                    <Text>Close</Text>
-                  </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    width: '100%',
-                    height: 1,
-                    backgroundColor: '#cccccc',
-                  }}
-                />
-                <View style={{padding: 20, top: 40}}>
-                  <View
-                    style={{
-                      justifyContent: 'space-around',
-                      alignItems: 'center',
-                    }}>
-                    <View style={styles.TotalCountView}>
-                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
-                        {this.state.rangeLow}
-                      </Text>
-                      <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
-                        -{this.state.rangeHigh}sq/ft
-                      </Text>
-                    </View>
+                        <RangeSlider
+                          style={{width: '100%', height: 70}}
+                          gravity="top"
+                          min={50}
+                          max={5000}
+                          step={50}
+                          handleBorderWidth={1}
+                          handleBorderColor="#F6D700"
+                          selectionColor="#F6D700"
+                          blankColor="#808080"
+                          onValueChanged={(low, high) => {
+                            this.setState({
+                              kitchensize: {
+                                min: low,
+                                max: high,
+                              },
+                            });
+                          }}
+                        />
+                      </>
+                    )}
+                    {this.state.AreaSelect === 'Garden Area' && (
+                      <>
+                        <View style={styles.TotalCountView}>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            {this.state.gardensize.min}
+                          </Text>
+                          <Text style={{fontSize: 20, fontFamily: 'Lato-Bold'}}>
+                            -{this.state.gardensize.max}sq/ft
+                          </Text>
+                        </View>
 
-                    <RangeSlider
-                      style={{width: '100%', height: 70}}
-                      gravity="top"
-                      min={50}
-                      max={500}
-                      step={50}
-                      handleBorderWidth={1}
-                      handleBorderColor="#F6D700"
-                      selectionColor="#F6D700"
-                      blankColor="#808080"
-                      onValueChanged={(low, high) => {
-                        this.setState({rangeLow: low, rangeHigh: high});
-                      }}
-                    />
+                        <RangeSlider
+                          style={{width: '100%', height: 70}}
+                          gravity="top"
+                          min={50}
+                          max={5000}
+                          step={50}
+                          handleBorderWidth={1}
+                          handleBorderColor="#F6D700"
+                          selectionColor="#F6D700"
+                          blankColor="#808080"
+                          onValueChanged={(low, high) => {
+                            this.setState({
+                              gardensize: {
+                                min: low,
+                                max: high,
+                              },
+                            });
+                          }}
+                        />
+                      </>
+                    )}
                   </View>
                 </View>
               </View>

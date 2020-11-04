@@ -28,23 +28,22 @@ function WelcomeScreen(props) {
       {
         index: 'house',
         imageurl: require('../../assets/images/LookFurnished.jpg'),
-        content: 'Looking for a house to let,\n    buy or Fullyfurnished? ',
+        content: 'Looking for a house to let,\n   buy or fully furnished? ',
       },
       {
         index: 'hotel',
         imageurl: require('../../assets/images/LookHotel.jpg'),
-        content: 'Looking for a Hotel?',
+        content: 'Looking for a hotel?',
       },
       {
         index: 'land',
         imageurl: require('../../assets/images/LookHouse.jpg'),
-        content: 'Looking for Land and Plot?',
+        content: 'Looking for land or a Plot?',
       },
       {
         index: 'warehouse',
         imageurl: require('../../assets/images/WareHouse.jpeg'),
-        content:
-          'Looking for a Commercial  space\n     or a  go-down/warehouse?',
+        content: 'Looking for a commercial space\n office  or a  go-down?',
       },
     ],
   });
