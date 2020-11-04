@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, FlatList } from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React, {Component} from 'react';
+import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 
-import Slider from '@react-native-community/slider';
-import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
-import { TouchableOpacity, ScrollView } from 'react-native-gesture-handler';
+import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
+import {TouchableOpacity, ScrollView} from 'react-native-gesture-handler';
 import {
   Collapse,
   CollapseHeader,
@@ -17,26 +17,16 @@ class LookingHotelSteps extends Component {
   constructor() {
     super();
     this.state = {
-
-      "bedbreakfastcost":
-      {
-        "min": 2,
-        "max": 15
+      bedbreakfastcost: {
+        min: 500,
+        max: 3000,
       },
-      "attributes":
-      {
-        "class": "worldclass",
-        "locality": "airport"
-      },
-      "conferenceroom": 5,
-      "kmfromtarmac": 15,
-      "area": "delhi",
-      "Hotel": "LandMark Hotel",
-
-
-
-
-
+      class: '',
+      locality: '',
+      conferenceroom: 5,
+      kmfromtarmac: 15,
+      area: '',
+      Hotel: '',
       index: 0,
       Cost: null,
       KMS: null,
@@ -47,21 +37,37 @@ class LookingHotelSteps extends Component {
       TarmacDist: null,
       WaterDist: null,
       ElectricityDist: null,
+      params: {},
+      url: '',
+      Max_Rooms: 0,
+      aircon: false,
+      carpark: false,
+      spa: false,
+      freshoutdoors: false,
+      indoorpool: false,
+      disabilityaccess: false,
+      barlounge: false,
+      hairsalon: false,
+      petsallowed: false,
+
       Class_Data: [
         {
           index: '0',
           imageurl: require('../../assets/Icons/worldClass.png'),
           name: 'World class',
+          code: 'worldclass',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/MidRange.png'),
           name: 'Mid Range',
+          code: 'midrange',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Budget.png'),
           name: 'Budget',
+          code: 'budget',
         },
       ],
       Locality_Data: [
@@ -69,21 +75,25 @@ class LookingHotelSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/city.png'),
           name: 'City',
+          code: 'city',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Airport.png'),
-          name: ' Airport',
+          name: ' Airprt',
+          code: 'airport',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Outskirts.png'),
           name: 'Outskirts',
+          code: 'outskirts',
         },
         {
           index: '3',
           imageurl: require('../../assets/Icons/GameHotel.png'),
           name: 'Game Hotel',
+          code: 'gamehotel',
         },
       ],
       Select_More_Featurs: [
@@ -91,146 +101,178 @@ class LookingHotelSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/carpark.png'),
           name: 'Car Parks',
+          code: 'carpark',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/aircon.png'),
           name: 'Aircon',
+          code: 'aircon',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/spa.png'),
           name: 'SPA',
+          code: 'spa',
         },
         {
           index: '3',
           imageurl: require('../../assets/Icons/freshoutdoor.png'),
           name: 'Fresh outdoor',
+          code: 'carpark',
         },
         {
           index: '4',
           imageurl: require('../../assets/Icons/indoorpool.png'),
           name: 'Indoor Pool',
+          code: 'indoorpool',
         },
         {
           index: '5',
           imageurl: require('../../assets/Icons/Disability.png'),
           name: 'Disability Access',
+          code: 'disabilityaccess',
         },
         {
           index: '6',
           imageurl: require('../../assets/Icons/barlounge.png'),
           name: 'Bar lounge',
+          code: 'barlounge',
         },
         {
           index: '7',
           imageurl: require('../../assets/Icons/hairsaloon.png'),
           name: 'Hair Salon',
+          code: 'hairsalon',
         },
         {
           index: '8',
           imageurl: require('../../assets/Icons/petsallowed.png'),
           name: 'Pet Allowed',
+          code: 'petsallowed',
         },
         {
           index: '9',
           imageurl: require('../../assets/Icons/MatureGarden.png'),
           name: 'Mature Garden',
+          code: 'maturegarden',
         },
       ],
+      message: '',
+      Min_Breakfast_Cost: 500,
+      Max_Breakfast_Cost: 3000,
+      Max_Tarmac_Dist: 0,
     };
   }
+
   GoNextStep = () => {
     this.setState({
       index: this.state.index + 1,
     });
   };
+
   GoPreviousStep = () => {
     this.setState({
       index: this.state.index - 1,
     });
-    if (this.state.index == 0) {
+    if (this.state.index === 0) {
       this.props.navigation.navigate('WelcomeScreen');
     }
   };
 
+  _searchStep1 = async (next = false) => {
+    const {area, Hotel} = this.state;
+    if (this.state.class === '') {
+      this.setState({message: 'please select class'});
+    } else if (this.state.locality === '') {
+      this.setState({message: 'please select locality'});
+    } else if (area === '') {
+      this.setState({message: 'please enter location '});
+    } else if (Hotel === '') {
+      this.setState({message: 'please enter Hotel name'});
+    } else {
+      this.setState({message: ''});
+      const url = 'https://cuboidtechnologies.com/api/search/hotel-search-1';
 
-  SearchStep1 = () => {
-    //////////////// //////////////////////  SEARCH WITH STEP ONE DATA  ////////////////////////////////////////////
-    console.log({
-
-      data: {
-
-        "bedbreakfastcost": {
-          "min": this.state.Min_Breakfast_Cost,
-          "max": this.state.Max_Breakfast_Cost
+      const params = {
+        bedbreakfastcost: {
+          min: this.state.Min_Breakfast_Cost,
+          max: this.state.Max_Breakfast_Cost,
         },
-        "attributes": {
-          "class": this.state.class,
-          "locality": this.state.locality
+        attributes: {
+          class: this.state.class,
+          locality: this.state.locality,
         },
-        "conferenceroom": this.state.Max_Rooms,
-        "kmfromtarmac": this.state.Max_Tarmac_Dist,
-        "area": this.state.area,
-        "Hotel": this.state.Hotel
-
-
+        conferenceroom: this.state.Max_Rooms,
+        kmfromtarmac: this.state.Max_Tarmac_Dist,
+        area: this.state.area,
+        Hotel: this.state.Hotel,
+      };
+      if (next) {
+        this.setState({params, url});
+        this.setState({
+          index: this.state.index + 1,
+        });
+      } else {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params,
+          url,
+        });
       }
-    })
+    }
+  };
 
-
-    // const URL = 'http://192.168.137.1:4000/api/search/house-search-2'
-    // axios({
-    //   method: 'post',
-    //   url: URL,
-    //   data: {
-
-    //     "bedbreakfastcost": {
-    //       "min": this.state.Min_Breakfast_Cost,
-    //       "max": this.state.Max_Breakfast_Cost
-    //     },
-    //     "attributes": {
-    //       "class": this.state.class,
-    //       "locality": this.state.locality
-    //     },
-    //     "conferenceroom": this.state.Max_Rooms,
-    //     "kmfromtarmac": this.state.Max_Tarmac_Dist,
-    //     "area": this.state.area,
-    //     "Hotel": this.state.Hotel
-
-
-    //   }
-    // })
-    //   /////////////////////////////////// AFTER RUN THE API FIND THE RESPONSE OF API/////////////////////////////////////
-    //   .then((response) => {
-    //     console.log(response)
-    //     const data = response.data;
-    //     // console.log(data);
-    //     const status = data.status;
-    //     // console.log(status)
-
-    //     if (status == "success") {
-    //       this.props.navigation.navigate('SearchFlipbook', { name: 'pawan', url: URL, opticalfiber: this.state.opticalfiber })
-    //     } else {
-    //       alert('Bad luck')
-    //     }
-
-    //   })
-    //   /////////////////////////////////// ERROR ALERT API NOT RUN ///////////////////////////////////////////////////
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
-
-  }
-
+  _searchStep2 = async () => {
+    const {
+      carpark,
+      aircon,
+      spa,
+      freshoutdoors,
+      indoorpool,
+      disabilityaccess,
+      barlounge,
+      hairsalon,
+      petsallowed,
+      params,
+    } = this.state;
+    let data = {};
+    if (carpark) {
+      data = {...data, carpark};
+    }
+    if (aircon) {
+      data = {...data, aircon};
+    }
+    if (spa) {
+      data = {...data, spa};
+    }
+    if (freshoutdoors) {
+      data = {...data, freshoutdoors};
+    }
+    if (indoorpool) {
+      data = {...data, indoorpool};
+    }
+    if (disabilityaccess) {
+      data = {...data, disabilityaccess};
+    }
+    if (barlounge) {
+      data = {...data, hairsalon};
+    }
+    if (petsallowed) {
+      data = {...data, petsallowed};
+    }
+    const _params = {...params, ...data};
+    const url = 'https://cuboidtechnologies.com/api/search/hotel-search-2';
+    this.props.navigation.navigate('SearchFlipbook', {
+      params: _params,
+      url,
+    });
+  };
 
   render() {
     const progressStepsStyle = {
       activeStepIconBorderColor: '#000', //Active step ,numbers border color
       activeLabelColor: '#000',
       activeStepNumColor: '#FFA500', //Numbers color in processbar
-      //   activeStepIconBackgroundColor='#000',
-      //   activeStepIconColor: '#F5F5F5',                 // Current active step color
       completedStepIconColor: '#000', //After complete the step change the step color
       completedProgressBarColor: '#000', //line Borders
       completedCheckColor: '#fff',
@@ -240,8 +282,8 @@ class LookingHotelSteps extends Component {
     };
 
     return (
-      <View style={{ flex: 1 }}>
-        <ScrollView style={{ bottom: 10 }}>
+      <View style={{flex: 1}}>
+        <ScrollView style={{bottom: 10}}>
           {/*//////////////////////////////////////  Header Start ///////////////////////////// */}
           <View style={styles.HeaderView}>
             <View
@@ -258,7 +300,7 @@ class LookingHotelSteps extends Component {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => this.props.navigation.navigate('RegisterPage')}
-                style={{ alignItems: 'center' }}>
+                style={{alignItems: 'center'}}>
                 <Image
                   style={styles.HeaderRightIcon}
                   source={require('../../assets/Icons/UserIcon.png')}
@@ -275,7 +317,7 @@ class LookingHotelSteps extends Component {
             </View>
           </View>
           {/* /////////////////// /////////////////// Header end  /////////////// */}
-          <View style={{ width: '100%' }}>
+          <View style={{width: '100%'}}>
             {/* /////////////////////// ProcessSteps Start Here /////////////////////////////////// */}
             <ProgressSteps
               {...progressStepsStyle}
@@ -288,12 +330,12 @@ class LookingHotelSteps extends Component {
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}
                 removeBtnRow={true}>
-                <View style={{ top: 20 }}>
+                <View style={{top: 20}}>
                   {/*///////////////////////////////////  Class   ///////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Class
                         </Text>
                         <Image
@@ -301,7 +343,7 @@ class LookingHotelSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -309,7 +351,7 @@ class LookingHotelSteps extends Component {
                         data={this.state.Class_Data}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -317,17 +359,19 @@ class LookingHotelSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              onPress={() => this.setState({ class: item.name })}
+                              onPress={() => this.setState({class: item.code})}
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 50,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
-                                backgroundColor: this.state.class == item.name ? '#F6D700' : '#f2f2f2',
+                                backgroundColor:
+                                  this.state.class === item.code
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -340,7 +384,7 @@ class LookingHotelSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -349,9 +393,9 @@ class LookingHotelSteps extends Component {
                   </Collapse>
                   {/* ///////////////////////////////////////// Locality  ////////////////////////*/}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           Locality
                         </Text>
                         <Image
@@ -359,7 +403,7 @@ class LookingHotelSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -367,7 +411,7 @@ class LookingHotelSteps extends Component {
                         data={this.state.Locality_Data}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -375,17 +419,21 @@ class LookingHotelSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              onPress={() => this.setState({ locality: item.name })}
+                              onPress={() =>
+                                this.setState({locality: item.code})
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 50,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
-                                backgroundColor: this.state.locality == item.name ? '#F6D700' : '#f2f2f2',
+                                backgroundColor:
+                                  this.state.locality === item.code
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -398,7 +446,7 @@ class LookingHotelSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -406,69 +454,60 @@ class LookingHotelSteps extends Component {
                     </CollapseBody>
                   </Collapse>
 
-                  {/* /////////////////////////////////////////////  Enter a location suburb or town ///////////////////////////////  */}
-                  <Collapse>
-                    <CollapseHeader style={{ height: 60 }}>
-                      <View style={{ paddingHorizontal: 20 }}>
-                        <View
-                          style={{
-                            width: '100%',
-                            flexDirection: 'row',
-                            borderWidth: 1,
-                            height: 40,
-                            borderColor: '#C0C0C0',
-                            // backgroundColor: 'red',
-                            borderRadius: 20,
-                            alignItems: 'center',
-                          }}>
-                          <Image
-                            style={{ width: 20, height: 20, left: 20 }}
-                            source={require('../../assets/Icons/SearchIcon.png')}
-                          />
-                          <TextInput
-                            placeholderTextColor="#000"
-                            placeholder="Enter a loccation suburb or town"
-                            style={{ left: 20, fontFamily: 'Lato-Regular' }}
-                            onChangeText={(text) => this.setState({ area: text })}
-                          />
-                        </View>
-                      </View>
-                    </CollapseHeader>
-                  </Collapse>
+                  <View style={{paddingHorizontal: 20, height: 60}}>
+                    <View
+                      style={{
+                        width: '100%',
+                        flexDirection: 'row',
+                        borderWidth: 1,
+                        height: 40,
+                        borderColor: '#C0C0C0',
+                        borderRadius: 20,
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        style={{width: 20, height: 20, left: 20}}
+                        source={require('../../assets/Icons/SearchIcon.png')}
+                      />
+                      <TextInput
+                        placeholderTextColor="#000"
+                        placeholder="Enter a location suburb or town"
+                        style={{left: 20, fontFamily: 'Lato-Regular'}}
+                        onChangeText={(text) => this.setState({area: text})}
+                      />
+                    </View>
+                  </View>
 
                   {/* /////////////////////////////////////////////   Bed  breadfast cost  ///////////////////////////////  */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
-
-                          Bed breadfast cost
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
+                          Bed breakfast cost
                         </Text>
                         <Image
                           style={styles.Downarrow}
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
-                      <View style={{ padding: 10, height: 100 }}>
+                      <View style={{padding: 10, height: 100}}>
                         <View
                           style={{
                             flexDirection: 'row',
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>${this.state.Min_Breakfast_Cost}</Text>
-                          <Text>-{this.state.Max_Breakfast_Cost}</Text>
+                          <Text>{this.state.Max_Breakfast_Cost}</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
-                          style={{ width: '100%', height: 70 }}
+                          style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
+                          min={500}
+                          max={3000}
                           step={50}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
@@ -488,39 +527,40 @@ class LookingHotelSteps extends Component {
                     </CollapseBody>
                   </Collapse>
                   {/* /////////////////////////////////////////////  Hotel name ///////////////////////////////  */}
-                  <Collapse>
-                    <CollapseHeader style={{ height: 60 }}>
-                      <View style={{ paddingHorizontal: 20 }}>
-                        <View
-                          style={{
-                            width: '100%',
-                            flexDirection: 'row',
-                            borderWidth: 1,
-                            height: 40,
-                            borderColor: '#C0C0C0',
-                            // backgroundColor: 'red',
-                            borderRadius: 20,
-                            alignItems: 'center',
-                          }}>
-                          <Image
-                            style={{ width: 20, height: 20, left: 20 }}
-                            source={require('../../assets/Icons/SearchIcon.png')}
-                          />
-                          <TextInput
-                            placeholderTextColor="#000"
-                            placeholder="Hotel Name"
-                            style={{ left: 20, fontFamily: 'Lato-Regular' }}
-                            onChangeText={(text) => this.setState({ Hotel: text })}
-                          />
-                        </View>
-                      </View>
-                    </CollapseHeader>
-                  </Collapse>
+
+                  <View style={{paddingHorizontal: 20, height: 80}}>
+                    <View
+                      style={{
+                        width: '100%',
+                        flexDirection: 'row',
+                        borderWidth: 1,
+                        height: 40,
+                        borderColor: '#C0C0C0',
+                        borderRadius: 20,
+                        alignItems: 'center',
+                      }}>
+                      <Image
+                        style={{width: 20, height: 20, left: 20}}
+                        source={require('../../assets/Icons/SearchIcon.png')}
+                      />
+                      <TextInput
+                        placeholderTextColor="#000"
+                        placeholder="Hotel Name"
+                        style={{
+                          left: 20,
+                          width: '100%',
+                          fontFamily: 'Lato-Regular',
+                        }}
+                        onChangeText={(text) => this.setState({Hotel: text})}
+                      />
+                    </View>
+                  </View>
+
                   {/* /////////////////////////////// KMs to tarmac ////////////////////// */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Image
                           style={{
                             height: 15,
@@ -531,32 +571,31 @@ class LookingHotelSteps extends Component {
                           source={require('../../assets/Icons/AllWather.png')}
                         />
                         <Text
-                          style={{ marginLeft: 10, fontFamily: 'Lato-Regular' }}>
+                          style={{marginLeft: 10, fontFamily: 'Lato-Regular'}}>
                           {' '}
                           KMs to tarmac
                         </Text>
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
-                      <View style={{ padding: 10, height: 100 }}>
+                      <View style={{padding: 10, height: 100}}>
                         <View
                           style={{
                             flexDirection: 'row',
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Tarmac_Dist}</Text>
-                          <Text>-{this.state.Max_Tarmac_Dist}/KM</Text>
+                          <Text>{this.state.Max_Tarmac_Dist}/KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
-                          style={{ width: '100%', height: 70 }}
+                          style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
-                          step={50}
+                          min={0}
+                          max={11}
+                          step={1}
+                          rangeEnabled={false}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
@@ -576,9 +615,9 @@ class LookingHotelSteps extends Component {
                   </Collapse>
                   {/* ///////////////////////////////////// conference room and number   ////////////////////////////// */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Image
                           style={{
                             height: 15,
@@ -589,31 +628,30 @@ class LookingHotelSteps extends Component {
                           source={require('../../assets/Icons/PartyArea.png')}
                         />
                         <Text
-                          style={{ marginLeft: 10, fontFamily: 'Lato-Regular' }}>
+                          style={{marginLeft: 10, fontFamily: 'Lato-Regular'}}>
                           Conference room and number
                         </Text>
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
-                      <View style={{ padding: 10, height: 100 }}>
+                      <View style={{padding: 10, height: 100}}>
                         <View
                           style={{
                             flexDirection: 'row',
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Rooms}</Text>
-                          <Text>-{this.state.Max_Rooms}</Text>
+                          <Text>{this.state.Max_Rooms}</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
-                          style={{ width: '100%', height: 70 }}
+                          rangeEnabled={false}
+                          style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={5}
-                          max={50}
-                          step={5}
+                          min={0}
+                          max={11}
+                          step={1}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
@@ -629,18 +667,16 @@ class LookingHotelSteps extends Component {
                     </CollapseBody>
                   </Collapse>
 
-                  {/* Apply btn */}
                   <View style={styles.ApplyView}>
                     <TouchableOpacity
-                      onPress={() => this.SearchStep1()}
+                      onPress={() => this._searchStep1()}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Search</Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      // onPress={() => this.props.navigation.navigate('SearchHouseStep2')}
-                      onPress={this.GoNextStep}
+                      onPress={() => this._searchStep1(true)}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Next </Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -653,12 +689,12 @@ class LookingHotelSteps extends Component {
                 onNext={this.onNextStep}
                 onPrevious={this.onPrevStep}
                 scrollViewProps={this.defaultScrollViewProps}>
-                <View style={{ top: 20 }}>
+                <View style={{top: 20}}>
                   {/* //////////////////////////////////////////  Class /////////////////////////////////////  */}
                   <Collapse>
-                    <CollapseHeader style={{ height: 50 }}>
+                    <CollapseHeader style={{height: 50}}>
                       <View style={styles.CallHeaderMainView}>
-                        <Text style={{ left: 10, fontFamily: 'Lato-Regular' }}>
+                        <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
                           select more features
                         </Text>
                         <Image
@@ -666,7 +702,7 @@ class LookingHotelSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -674,7 +710,7 @@ class LookingHotelSteps extends Component {
                         data={this.state.Select_More_Featurs}
                         numColumns={3}
                         keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
+                        renderItem={({item}) => (
                           <View
                             style={{
                               padding: 10,
@@ -682,17 +718,23 @@ class LookingHotelSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
+                              onPress={() => {
+                                console.log(this.state[item.code]);
+                                this.setState({
+                                  [item.code]: !this.state[item.code],
+                                });
+                              }}
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 50,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
-                                // backgroundColor: this.state.index == item.index ? 'red' : 'green',
+                                backgroundColor: this.state[item.code]
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
                                 shadowColor: '#000',
-                                shadowOffset: { width: 2, height: 2 },
+                                shadowOffset: {width: 2, height: 2},
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 elevation: 5,
@@ -705,7 +747,7 @@ class LookingHotelSteps extends Component {
                                   resizeMode: 'contain',
                                 }}
                               />
-                              <Text style={{ fontSize: 12 }}>{item.name}</Text>
+                              <Text style={{fontSize: 12}}>{item.name}</Text>
                             </TouchableOpacity>
                           </View>
                         )}
@@ -714,22 +756,24 @@ class LookingHotelSteps extends Component {
                   </Collapse>
                   {/* ///////////////////////////////////////////  Apply Btn's /////////////////////////////////////// */}
                   <View style={styles.ApplyView}>
-                    {/* <TouchableOpacity style={styles.ApplyBtn}>
-                                            <Text style={{fontFamily: 'Lato-Regular'}}>Apply</Text>
-                                        </TouchableOpacity> */}
-                    <View></View>
                     <TouchableOpacity
-                      // onPress={this.GoNextStep}
-                      onPress={() =>
-                        this.props.navigation.navigate('SearchFlipbook')
-                      }
+                      onPress={() => this._searchStep2()}
                       style={styles.ApplyBtn}>
-                      <Text style={{ fontFamily: 'Lato-Regular' }}>Search</Text>
+                      <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               </ProgressStep>
             </ProgressSteps>
+            <Text
+              style={{
+                color: '#D33257',
+                paddingTop: 8,
+                paddingHorizontal: 32,
+                textAlign: 'left',
+              }}>
+              {this.state.message}
+            </Text>
             {/* //////////////////////////////// End All ProcessSteps Here ///////////////////////////////////// */}
           </View>
         </ScrollView>
@@ -754,8 +798,9 @@ const styles = StyleSheet.create({
   },
   HeaderView: {
     width: '100%',
-    height: 80,
+    height: 100,
     padding: 20,
+    paddingTop: 40,
     backgroundColor: '#000',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
