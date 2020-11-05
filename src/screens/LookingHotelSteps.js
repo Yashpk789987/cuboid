@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
+
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
-
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {TouchableOpacity, ScrollView} from 'react-native-gesture-handler';
 import {
@@ -10,8 +10,9 @@ import {
   CollapseBody,
   AccordionList,
 } from 'accordion-collapse-react-native';
-
 import RangeSlider from 'rn-range-slider';
+
+import {UserContext} from '../contexts/UserContext';
 
 class LookingHotelSteps extends Component {
   constructor() {
@@ -269,6 +270,12 @@ class LookingHotelSteps extends Component {
   };
 
   render() {
+    const {
+      payload: {
+        user: {firstname},
+        isLoggedIn,
+      },
+    } = this.context;
     const progressStepsStyle = {
       activeStepIconBorderColor: '#000', //Active step ,numbers border color
       activeLabelColor: '#000',
@@ -299,7 +306,13 @@ class LookingHotelSteps extends Component {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('RegisterPage')}
+                onPress={() => {
+                  if (isLoggedIn) {
+                    this.props.navigation.navigate('ProfilePage');
+                  } else {
+                    this.props.navigation.navigate('RegisterPage');
+                  }
+                }}
                 style={{alignItems: 'center'}}>
                 <Image
                   style={styles.HeaderRightIcon}
@@ -311,7 +324,7 @@ class LookingHotelSteps extends Component {
                     fontSize: 10,
                     fontFamily: 'Lato-Regular',
                   }}>
-                  Sign up
+                  {isLoggedIn ? firstname : 'Sign up'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -501,7 +514,8 @@ class LookingHotelSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Max_Breakfast_Cost}</Text>
+                          <Text>{this.state.Min_Breakfast_Cost}</Text>
+                          <Text> - {this.state.Max_Breakfast_Cost}</Text>
                         </View>
                         <RangeSlider
                           style={{width: '100%', height: 70}}
@@ -781,6 +795,9 @@ class LookingHotelSteps extends Component {
     );
   }
 }
+
+LookingHotelSteps.contextType = UserContext;
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',

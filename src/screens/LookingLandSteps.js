@@ -1,7 +1,7 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, Image, TextInput} from 'react-native';
 
-// import Slider from '@react-native-community/slider';
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {TouchableOpacity, ScrollView} from 'react-native-gesture-handler';
 import {
@@ -12,29 +12,45 @@ import {
 } from 'accordion-collapse-react-native';
 
 import RangeSlider from 'rn-range-slider';
+import {UserContext} from '../contexts/UserContext';
 
 class LookingLandSteps extends Component {
   constructor() {
     super();
     this.state = {
-      index: 0,
-      Cost: null,
-      Sizearea: null,
-      ShopDist: null,
-      NeighbourDist: null,
-      TarmacDist: null,
-      WaterDist: null,
-      ElectricityDist: null,
+      index: 2,
+      cost: {min: 0, max: 5000},
+      sizeinacres: {min: 0, max: 1000},
+      area: '',
+      mainCategory: '',
+      leasefreehold: '',
+      councilwater: false, //optional
+      electricity: false, //optional
+      readyfence: false, //optional
+      gated: false, //optional
+      borehole: false, //optional
+      controlleddevelopment: false, //optional
+      waterfront: false, //optional
+      kmtoelectricity: 2,
+      kmtoneighbour: 2,
+      kmtoshoppingcenter: 2,
+      kmtotarmac: 2,
+      kmtowater: 2,
+      nature: '',
+      road: '',
+      soilType: '',
       MainCategory: [
         {
           index: '0',
           imageurl: require('../../assets/Icons/Buy.png'),
           name: 'Buy',
+          code: 'buy',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Rent.png'),
           name: ' Let',
+          code: 'let',
         },
       ],
       Select_Services: [
@@ -42,36 +58,43 @@ class LookingLandSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/CouncialWater.png'),
           name: 'Councial Water',
+          code: 'councilwater',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Electricityonsite.png'),
           name: 'Elelcticity Site',
+          code: 'electricity',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Borehole2.png'),
           name: 'Bore Hole',
+          code: 'borehole',
         },
         {
           index: '3',
           imageurl: require('../../assets/Icons/ReadyFence.png'),
           name: 'Ready Fance',
+          code: 'readyfence',
         },
         {
           index: '4',
           imageurl: require('../../assets/Icons/ControlledDepartment.png'),
           name: 'Controlled',
+          code: 'controlleddevelopment',
         },
         {
           index: '5',
           imageurl: require('../../assets/Icons/WaterFront.png'),
           name: 'Water Front',
+          code: 'waterfront',
         },
         {
           index: '6',
           imageurl: require('../../assets/Icons/Gated.png'),
           name: 'Gated',
+          code: 'gated',
         },
       ],
       Soil_Type_Data: [
@@ -79,16 +102,19 @@ class LookingLandSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/Redsoil.png'),
           name: 'Red',
+          code: 'red',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Redsoil.png'),
           name: 'Black Cotton',
+          code: 'blackcotton',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Murram.png'),
           name: 'Murram',
+          code: 'murram',
         },
       ],
       Nature_Data: [
@@ -96,16 +122,19 @@ class LookingLandSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/Residential.png'),
           name: 'Residential',
+          code: 'residential',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Commercial.png'),
           name: 'Commercial',
+          code: 'commercial',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/Indrustial.png'),
           name: 'Industrial',
+          code: 'industrial',
         },
       ],
       Road_Data: [
@@ -113,23 +142,31 @@ class LookingLandSteps extends Component {
           index: '0',
           imageurl: require('../../assets/Icons/Tarmac.png'),
           name: 'Tarmac',
+          code: 'tarmac',
         },
         {
           index: '1',
           imageurl: require('../../assets/Icons/Murram.png'),
           name: 'Murram',
+          code: 'murram',
         },
         {
           index: '2',
           imageurl: require('../../assets/Icons/AllWather.png'),
-          name: 'All Wather',
+          name: 'All Weather',
+          code: 'allweather',
         },
         {
           index: '3',
           imageurl: require('../../assets/Icons/NoRoad.png'),
           name: 'No Road',
+          code: 'noroad',
         },
       ],
+      params: undefined,
+      url: undefined,
+      message: '',
+      loading: false,
     };
   }
 
@@ -138,24 +175,151 @@ class LookingLandSteps extends Component {
       index: this.state.index + 1,
     });
   };
+
   GoPreviousStep = () => {
     this.setState({
       index: this.state.index - 1,
     });
-    if (this.state.index == 0) {
+    if (this.state.index === 0) {
       this.props.navigation.navigate('WelcomeScreen');
     }
   };
 
+  _stepSearch1 = async (next = false) => {
+    const {mainCategory, area, cost, sizeinacres, leasefreehold} = this.state;
+    if (mainCategory === '') {
+      this.setState({message: 'please select main category'});
+    } else if (leasefreehold === '') {
+      this.setState({message: 'please select lease free hold'});
+    } else {
+      this.setState({message: ''});
+      let params = {
+        cost: {min: cost.min, max: cost.max},
+        sizeinacres: {min: sizeinacres.min, max: sizeinacres.max},
+        attributes: {
+          mainCategory: mainCategory,
+          leasefreehold: leasefreehold,
+        },
+      };
+      if (area !== '') {
+        params = {...params, area};
+      }
+      const url = 'https://cuboidtechnologies.com/api/search/land-search-1';
+      if (next) {
+        await this.setState({params: params, url});
+        this.setState({
+          index: this.state.index + 1,
+        });
+      } else {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params,
+          url,
+        });
+      }
+    }
+  };
+
+  _stepSearch2 = async (next = false) => {
+    const {
+      councilwater,
+      electricity,
+      borehole,
+      readyfence,
+      controlleddevelopment,
+      waterfront,
+      gated,
+      soilType,
+      nature,
+      road,
+      params,
+    } = this.state;
+    let data = {};
+    if (councilwater) {
+      data = {...data, councilwater};
+    }
+    if (electricity) {
+      data = {...data, councilwater};
+    }
+    if (borehole) {
+      data = {...data, borehole};
+    }
+    if (readyfence) {
+      data = {...data, readyfence};
+    }
+    if (controlleddevelopment) {
+      data = {...data, controlleddevelopment};
+    }
+    if (waterfront) {
+      data = {...data, waterfront};
+    }
+    if (gated) {
+      data = {...data, gated};
+    }
+    if (soilType === '') {
+      this.setState({message: 'please choose soil type'});
+    } else if (nature === '') {
+      this.setState({message: 'please choose nature'});
+    } else if (road === '') {
+      this.setState({message: 'please choose nature'});
+    } else {
+      this.setState({message: ''});
+      data = {...data, soilType, nature, road};
+      const url = 'https://cuboidtechnologies.com/api/search/land-search-2';
+      const newData = {...params, attributes: {...params.attributes, ...data}};
+      if (next) {
+        await this.setState({
+          params: newData,
+          url,
+        });
+        this.setState({
+          index: this.state.index + 1,
+        });
+      } else {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params: newData,
+          url,
+        });
+      }
+    }
+  };
+
+  _stepSearch3 = async () => {
+    const {
+      kmtoshoppingcenter,
+      kmtoneighbour,
+      kmtotarmac,
+      kmtowater,
+      kmtoelectricity,
+      params,
+    } = this.state;
+    const url = 'https://cuboidtechnologies.com/api/search/land-search-3';
+    const data = {
+      ...params,
+      kmtoshoppingcenter,
+      kmtoneighbour,
+      kmtotarmac,
+      kmtowater,
+      kmtoelectricity,
+    };
+    this.props.navigation.navigate('SearchFlipbook', {
+      params: data,
+      url,
+    });
+  };
+
   render() {
+    const {
+      payload: {
+        user: {firstname},
+        isLoggedIn,
+      },
+    } = this.context;
     const progressStepsStyle = {
-      activeStepIconBorderColor: '#000', //Active step ,numbers border color
+      activeStepIconBorderColor: '#000',
       activeLabelColor: '#000',
-      activeStepNumColor: '#FFA500', //Numbers color in processbar
-      //   activeStepIconBackgroundColor='#000',
-      //   activeStepIconColor: '#F5F5F5',                 // Current active step color
-      completedStepIconColor: '#000', //After complete the step change the step color
-      completedProgressBarColor: '#000', //line Borders
+      activeStepNumColor: '#FFA500',
+      completedStepIconColor: '#000',
+      completedProgressBarColor: '#000',
       completedCheckColor: '#fff',
       height: 50,
       width: 100,
@@ -180,7 +344,13 @@ class LookingLandSteps extends Component {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('RegisterPage')}
+                onPress={() => {
+                  if (isLoggedIn) {
+                    this.props.navigation.navigate('ProfilePage');
+                  } else {
+                    this.props.navigation.navigate('RegisterPage');
+                  }
+                }}
                 style={{alignItems: 'center'}}>
                 <Image
                   style={styles.HeaderRightIcon}
@@ -192,7 +362,7 @@ class LookingLandSteps extends Component {
                     fontSize: 10,
                     fontFamily: 'Lato-Regular',
                   }}>
-                  Sign up
+                  {isLoggedIn ? firstname : 'Sign Up'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -222,7 +392,7 @@ class LookingLandSteps extends Component {
                         source={require('../../assets/Icons/Downarrow.png')}
                       />
                     </View>
-                    <View style={styles.BottomBorder}></View>
+                    <View style={styles.BottomBorder} />
                   </CollapseHeader>
 
                   <CollapseBody>
@@ -238,15 +408,19 @@ class LookingLandSteps extends Component {
                             width: '33%',
                           }}>
                           <TouchableOpacity
-                            // onPress={this.ChangeColor(item.index)}
+                            onPress={() =>
+                              this.setState({mainCategory: item.code})
+                            }
                             style={{
                               width: 100,
                               height: 100,
                               borderRadius: 100 / 2,
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: '#f2f2f2',
-                              // backgroundColor: this.state.index == item.index ? 'red' : 'green',
+                              backgroundColor:
+                                this.state.mainCategory === item.code
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
                               shadowColor: '#000',
                               shadowOffset: {width: 2, height: 2},
                               shadowOpacity: 0.25,
@@ -289,6 +463,8 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/SearchIcon.png')}
                         />
                         <TextInput
+                          value={this.state.area}
+                          onChangeText={(text) => this.setState({area: text})}
                           placeholderTextColor="#000"
                           placeholder="Enter a location suburb or town"
                           style={{left: 20, fontFamily: 'Lato-Regular'}}
@@ -296,26 +472,8 @@ class LookingLandSteps extends Component {
                       </View>
                     </View>
                   </CollapseHeader>
-
-                  {/* 
-                                        <CollapseBody >
-                                            <View style={{ height: 80, padding: 20 }}>
-                                                <Text style={{ alignSelf: 'flex-end', right: 20 }}>${this.state.Cost}</Text>
-                                                <Slider
-                                                    style={{ width: '100%', height: 40, }}
-                                                    minimumValue={50}
-                                                    maximumValue={500}
-                                                    minimumTrackTintColor="#FFA500"
-                                                    maximumTrackTintColor="##FFA500"
-                                                    value={this.state.Cost}
-                                                    step={1}
-                                                    onValueChange={(Cost) => this.setState({ Cost })}
-                                                />
-                                            </View>
-                                        </CollapseBody> */}
                 </Collapse>
 
-                {/* /////////////////////////////////  Cost  ////////////////////////////////////// */}
                 <Collapse>
                   <CollapseHeader style={{height: 50}}>
                     <View style={styles.CallHeaderMainView}>
@@ -327,7 +485,7 @@ class LookingLandSteps extends Component {
                         source={require('../../assets/Icons/Downarrow.png')}
                       />
                     </View>
-                    <View style={styles.BottomBorder}></View>
+                    <View style={styles.BottomBorder} />
                   </CollapseHeader>
 
                   <CollapseBody>
@@ -338,22 +496,23 @@ class LookingLandSteps extends Component {
                           justifyContent: 'flex-end',
                           marginTop: -20,
                         }}>
-                        <Text>${this.state.rangeLow}</Text>
-                        <Text>-{this.state.rangeHigh}</Text>
+                        <Text>${this.state.cost.min}</Text>
+                        <Text>-{this.state.cost.max}</Text>
                       </View>
                       <RangeSlider
-                        // elevation={2}
                         style={{width: '100%', height: 70}}
                         gravity={'center'}
-                        min={50}
-                        max={500}
+                        min={0}
+                        max={5000}
                         step={50}
                         handleBorderWidth={0.5}
                         handleBorderColor="#F6D700"
                         selectionColor="#F6D700"
                         blankColor="#808080"
                         onValueChanged={(low, high) => {
-                          this.setState({rangeLow: low, rangeHigh: high});
+                          this.setState({
+                            cost: {min: low, max: high},
+                          });
                         }}
                       />
                     </View>
@@ -365,14 +524,14 @@ class LookingLandSteps extends Component {
                   <CollapseHeader style={{height: 50}}>
                     <View style={styles.CallHeaderMainView}>
                       <Text style={{left: 10, fontFamily: 'Lato-Regular'}}>
-                        Size in areas
+                        Size in acres
                       </Text>
                       <Image
                         style={styles.Downarrow}
                         source={require('../../assets/Icons/Downarrow.png')}
                       />
                     </View>
-                    <View style={styles.BottomBorder}></View>
+                    <View style={styles.BottomBorder} />
                   </CollapseHeader>
 
                   <CollapseBody>
@@ -383,28 +542,41 @@ class LookingLandSteps extends Component {
                           justifyContent: 'flex-end',
                           marginTop: -20,
                         }}>
-                        <Text>{this.state.lowSize}</Text>
-                        <Text>-{this.state.highSize}areas</Text>
+                        <Text>{this.state.sizeinacres.min}</Text>
+                        <Text>-{this.state.sizeinacres.max} acres </Text>
                       </View>
                       <RangeSlider
-                        // elevation={2}
                         style={{width: '100%', height: 70}}
                         gravity={'center'}
-                        min={50}
-                        max={500}
-                        step={50}
+                        min={0}
+                        max={1000}
+                        step={1}
                         handleBorderWidth={0.5}
                         handleBorderColor="#F6D700"
                         selectionColor="#F6D700"
                         blankColor="#808080"
                         onValueChanged={(lowSize, highSize) => {
-                          this.setState({lowSize: lowSize, highSize: highSize});
+                          this.setState({
+                            sizeinacres: {min: lowSize, max: highSize},
+                          });
                         }}
                       />
                     </View>
                     <View style={styles.CallBodyMainView}>
                       <View style={{alignItems: 'center'}}>
-                        <TouchableOpacity style={styles.CategoryCircleView}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({leasefreehold: 'freehold'})
+                          }
+                          style={[
+                            styles.CategoryCircleView,
+                            {
+                              backgroundColor:
+                                this.state.leasefreehold === 'freehold'
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
+                            },
+                          ]}>
                           <Image
                             style={styles.CategoryIcons}
                             source={require('../../assets/Icons/Freeholdland.png')}
@@ -420,7 +592,19 @@ class LookingLandSteps extends Component {
                         </TouchableOpacity>
                       </View>
                       <View style={{alignItems: 'center'}}>
-                        <TouchableOpacity style={styles.CategoryCircleView}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            this.setState({leasefreehold: 'lease'})
+                          }
+                          style={[
+                            styles.CategoryCircleView,
+                            {
+                              backgroundColor:
+                                this.state.leasefreehold === 'lease'
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
+                            },
+                          ]}>
                           <Image
                             style={styles.CategoryIcons}
                             source={require('../../assets/Icons/XMLTD.png')}
@@ -435,29 +619,24 @@ class LookingLandSteps extends Component {
                           </Text>
                         </TouchableOpacity>
                       </View>
-                      <View></View>
-                      <View style={{alignItems: 'center'}}>
-                        {/* <TouchableOpacity style={styles.CategoryCircleView}>
-                                                        <Image style={styles.CategoryIcons} source={require('../../assets/Icons/Own.png')} />
-                                                        <Text style={{ top: 5, fontSize: 10 }}>Apartment</Text>
-                                                    </TouchableOpacity> */}
-                      </View>
+
+                      <View style={{alignItems: 'center'}} />
                     </View>
                   </CollapseBody>
                 </Collapse>
-                {/* Apply btn */}
+
                 <View style={styles.ApplyView}>
-                  <TouchableOpacity style={styles.ApplyBtn}>
+                  <TouchableOpacity
+                    onPress={() => this._stepSearch1()}
+                    style={styles.ApplyBtn}>
                     <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    // onPress={() => this.props.navigation.navigate('SearchHouseStep2')}
-                    onPress={this.GoNextStep}
+                    onPress={() => this._stepSearch1(true)}
                     style={styles.ApplyBtn}>
                     <Text style={{fontFamily: 'Lato-Regular'}}>Next </Text>
                   </TouchableOpacity>
                 </View>
-                {/* </View> */}
               </ProgressStep>
 
               {/* ////////////////////////////////////////////// Second PprocessStep Start Here ////////////////////// */}
@@ -480,7 +659,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -496,14 +675,21 @@ class LookingLandSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
+                              onPress={() =>
+                                this.setState((p) => ({
+                                  ...p,
+                                  [item.code]: !p[item.code],
+                                }))
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
+                                backgroundColor: this.state[item.code]
+                                  ? '#F6D700'
+                                  : '#f2f2f2',
                                 // backgroundColor: this.state.index == item.index ? 'red' : 'green',
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
@@ -538,7 +724,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -554,14 +740,19 @@ class LookingLandSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
+                              onPress={() =>
+                                this.setState({soilType: item.code})
+                              }
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
+                                backgroundColor:
+                                  this.state.soilType === item.code
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 // backgroundColor: this.state.index == item.index ? 'red' : 'green',
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
@@ -594,7 +785,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -610,14 +801,18 @@ class LookingLandSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
+                              onPress={() => this.setState({nature: item.code})}
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
+                                backgroundColor:
+                                  this.state.nature === item.code
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
+
                                 // backgroundColor: this.state.index == item.index ? 'red' : 'green',
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
@@ -650,7 +845,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -666,14 +861,17 @@ class LookingLandSteps extends Component {
                               width: '33%',
                             }}>
                             <TouchableOpacity
-                              // onPress={this.ChangeColor(item.index)}
+                              onPress={() => this.setState({road: item.code})}
                               style={{
                                 width: 100,
                                 height: 100,
                                 borderRadius: 100 / 2,
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f2f2f2',
+                                backgroundColor:
+                                  this.state.road === item.code
+                                    ? '#F6D700'
+                                    : '#f2f2f2',
                                 // backgroundColor: this.state.index == item.index ? 'red' : 'green',
                                 shadowColor: '#000',
                                 shadowOffset: {width: 2, height: 2},
@@ -698,11 +896,13 @@ class LookingLandSteps extends Component {
                   </Collapse>
                   {/* ////////////////////////////////////// Apply Btn's ////////////////////////////////////*/}
                   <View style={styles.ApplyView}>
-                    <TouchableOpacity style={styles.ApplyBtn}>
+                    <TouchableOpacity
+                      onPress={() => this._stepSearch2()}
+                      style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={this.GoNextStep}
+                      onPress={() => this._stepSearch2(true)}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Next</Text>
                     </TouchableOpacity>
@@ -729,7 +929,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -740,22 +940,21 @@ class LookingLandSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.lowKM}</Text>
-                          <Text>-{this.state.highKM}/KM</Text>
+                          <Text>{this.state.kmtoshoppingcenter} KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
+                          rangeEnabled={false}
                           style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={10}
-                          max={50}
-                          step={10}
+                          min={0}
+                          max={20}
+                          step={1}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(lowKM, highKM) => {
-                            this.setState({lowKM: lowKM, highKM: highKM});
+                            this.setState({kmtoshoppingcenter: lowKM});
                           }}
                         />
                       </View>
@@ -773,7 +972,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -784,24 +983,22 @@ class LookingLandSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Neb_KM}</Text>
-                          <Text>-{this.state.Max_Neb_KM}/KM</Text>
+                          <Text>-{this.state.kmtoneighbour} KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
+                          rangeEnabled={false}
                           style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
-                          step={50}
+                          min={0}
+                          max={20}
+                          step={1}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(Min_Neb_KM, Max_Neb_KM) => {
                             this.setState({
-                              Min_Neb_KM: Min_Neb_KM,
-                              Max_Neb_KM: Max_Neb_KM,
+                              kmtoneighbour: Min_Neb_KM,
                             });
                           }}
                         />
@@ -821,7 +1018,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -832,24 +1029,22 @@ class LookingLandSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Tarmac_Dis}</Text>
-                          <Text>-{this.state.Max_Tarmac_Dis}/KM</Text>
+                          <Text>{this.state.kmtotarmac} KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
+                          rangeEnabled={false}
                           style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
-                          step={50}
+                          min={0}
+                          max={20}
+                          step={1}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(Min_Tarmac_Dis, Max_Tarmac_Dis) => {
                             this.setState({
-                              Min_Tarmac_Dis: Min_Tarmac_Dis,
-                              Max_Tarmac_Dis: Max_Tarmac_Dis,
+                              kmtotarmac: Min_Tarmac_Dis,
                             });
                           }}
                         />
@@ -869,7 +1064,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -880,24 +1075,22 @@ class LookingLandSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Water_Dis}</Text>
-                          <Text>-{this.state.Max_Water_Dis}/KM</Text>
+                          <Text>{this.state.kmtowater} KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
                           style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
-                          step={50}
+                          rangeEnabled={false}
+                          min={0}
+                          max={20}
+                          step={1}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(Min_Water_Dis, Max_Water_Dis) => {
                             this.setState({
-                              Min_Water_Dis: Min_Water_Dis,
-                              Max_Water_Dis: Max_Water_Dis,
+                              kmtowater: Min_Water_Dis,
                             });
                           }}
                         />
@@ -917,7 +1110,7 @@ class LookingLandSteps extends Component {
                           source={require('../../assets/Icons/Downarrow.png')}
                         />
                       </View>
-                      <View style={styles.BottomBorder}></View>
+                      <View style={styles.BottomBorder} />
                     </CollapseHeader>
 
                     <CollapseBody>
@@ -928,24 +1121,22 @@ class LookingLandSteps extends Component {
                             justifyContent: 'flex-end',
                             marginTop: -20,
                           }}>
-                          <Text>{this.state.Min_Elect_Dis}</Text>
-                          <Text>-{this.state.Max_Elect_Dis}/KM</Text>
+                          <Text>{this.state.kmtoelectricity} KM</Text>
                         </View>
                         <RangeSlider
-                          // elevation={2}
                           style={{width: '100%', height: 70}}
                           gravity={'center'}
-                          min={50}
-                          max={500}
-                          step={50}
+                          min={0}
+                          max={20}
+                          step={1}
+                          rangeEnabled={false}
                           handleBorderWidth={0.5}
                           handleBorderColor="#F6D700"
                           selectionColor="#F6D700"
                           blankColor="#808080"
                           onValueChanged={(Min_Elect_Dis, Max_Elect_Dis) => {
                             this.setState({
-                              Min_Elect_Dis: Min_Elect_Dis,
-                              Max_Elect_Dis: Max_Elect_Dis,
+                              kmtoelectricity: Min_Elect_Dis,
                             });
                           }}
                         />
@@ -960,9 +1151,7 @@ class LookingLandSteps extends Component {
                                         </TouchableOpacity> */}
                     <View></View>
                     <TouchableOpacity
-                      onPress={() =>
-                        this.props.navigation.navigate('SearchFlipbook')
-                      }
+                      onPress={() => this._stepSearch3()}
                       // onPress={this.GoNextStep}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
@@ -971,12 +1160,24 @@ class LookingLandSteps extends Component {
                 </View>
               </ProgressStep>
             </ProgressSteps>
+            <Text
+              style={{
+                color: '#D33257',
+                paddingTop: 8,
+                paddingHorizontal: 32,
+                textAlign: 'left',
+              }}>
+              {this.state.message}
+            </Text>
           </View>
         </ScrollView>
       </View>
     );
   }
 }
+
+LookingLandSteps.contextType = UserContext;
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#ffffff',
@@ -994,8 +1195,9 @@ const styles = StyleSheet.create({
   },
   HeaderView: {
     width: '100%',
-    height: 80,
+    height: 92,
     padding: 20,
+    paddingTop: 36,
     backgroundColor: '#000',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
