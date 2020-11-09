@@ -9,10 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {ScrollView} from 'react-native-gesture-handler';
-
 import {
   Collapse,
   CollapseHeader,
@@ -266,7 +264,7 @@ class LookingHouseSteps extends Component {
       ],
       message: '',
       params: undefined,
-      url: undefined,
+      url: 'https://cuboidtechnologies.com/api/search/house-search',
     };
   }
 
@@ -350,18 +348,21 @@ class LookingHouseSteps extends Component {
       if (AreaName !== '') {
         data = {...data, Area: AreaName};
       }
-      const url = 'https://cuboidtechnologies.com/api/search/house-search-1';
 
       if (nextPage) {
-        this.setState({params: data, url});
+        this.setState({params: data});
         this.setState({
           index: this.state.index + 1,
         });
       } else {
-        this.props.navigation.navigate('SearchFlipbook', {
-          params: data,
-          url,
-        });
+        if (this.context.payload.isLoggedIn) {
+          this.props.navigation.navigate('SearchFlipbook', {
+            params: data,
+            url: this.state.url,
+          });
+        } else {
+          this.props.navigation.navigate('LoginPage');
+        }
       }
     }
   };
@@ -405,7 +406,6 @@ class LookingHouseSteps extends Component {
     if (partyarea) {
       data = {...data, partyarea};
     }
-    const url = 'https://cuboidtechnologies.com/api/search/house-search-1';
     if (next) {
       await this.setState((prev) => ({
         ...prev,
@@ -413,7 +413,6 @@ class LookingHouseSteps extends Component {
           ...prev.params,
           attributes: {...prev.params.attributes, ...data},
         },
-        url,
       }));
       this.setState({
         index: this.state.index + 1,
@@ -423,10 +422,14 @@ class LookingHouseSteps extends Component {
         ...this.state.params,
         attributes: {...this.state.params.attributes, ...data},
       };
-      this.props.navigation.navigate('SearchFlipbook', {
-        params,
-        url,
-      });
+      if (this.context.payload.isLoggedIn) {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params,
+          url: this.state.url,
+        });
+      } else {
+        this.props.navigation.navigate('LoginPage');
+      }
     }
   };
 
@@ -470,11 +473,14 @@ class LookingHouseSteps extends Component {
       kitchensize,
       gardensize,
     };
-    const url = 'https://cuboidtechnologies.com/api/search/house-search-2';
-    this.props.navigation.navigate('SearchFlipbook', {
-      params: finalData,
-      url,
-    });
+    if (this.context.payload.isLoggedIn) {
+      this.props.navigation.navigate('SearchFlipbook', {
+        params: finalData,
+        url: this.state.url,
+      });
+    } else {
+      this.props.navigation.navigate('LoginPage');
+    }
   };
 
   render() {

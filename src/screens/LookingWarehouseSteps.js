@@ -1,7 +1,7 @@
+/* eslint-disable no-alert */
 /* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
-
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {TouchableOpacity, ScrollView} from 'react-native-gesture-handler';
 import {
@@ -11,6 +11,7 @@ import {
   AccordionList,
 } from 'accordion-collapse-react-native';
 import RangeSlider from 'rn-range-slider';
+
 import {UserContext} from '../contexts/UserContext';
 
 class LookingWarehouseSteps extends Component {
@@ -293,10 +294,14 @@ class LookingWarehouseSteps extends Component {
           index: this.state.index + 1,
         });
       } else {
-        this.props.navigation.navigate('SearchFlipbook', {
-          params: data,
-          url: this.state.url,
-        });
+        if (this.context.payload.isLoggedIn) {
+          this.props.navigation.navigate('SearchFlipbook', {
+            params: data,
+            url: this.state.url,
+          });
+        } else {
+          this.props.navigation.navigate('LoginPage');
+        }
       }
     }
   };
@@ -342,10 +347,14 @@ class LookingWarehouseSteps extends Component {
         index: this.state.index + 1,
       });
     } else {
-      this.props.navigation.navigate('SearchFlipbook', {
-        params: this.state.params,
-        url: this.state.url,
-      });
+      if (this.context.payload.isLoggedIn) {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params: this.state.params,
+          url: this.state.url,
+        });
+      } else {
+        this.props.navigation.navigate('LoginPage');
+      }
     }
   };
 
@@ -412,10 +421,14 @@ class LookingWarehouseSteps extends Component {
         ...params,
         attributes: {...params.attributes, ...newData},
       };
-      this.props.navigation.navigate('SearchFlipbook', {
-        params: newParams,
-        url: this.state.url,
-      });
+      if (this.context.payload.isLoggedIn) {
+        this.props.navigation.navigate('SearchFlipbook', {
+          params: newParams,
+          url: this.state.url,
+        });
+      } else {
+        this.props.navigation.navigate('LoginPage');
+      }
     }
   };
 

@@ -39,7 +39,7 @@ class LookingHotelSteps extends Component {
       WaterDist: null,
       ElectricityDist: null,
       params: {},
-      url: '',
+      url: 'https://cuboidtechnologies.com/api/search/hotel-search',
       Max_Rooms: 0,
       aircon: false,
       carpark: false,
@@ -193,7 +193,6 @@ class LookingHotelSteps extends Component {
       this.setState({message: 'please enter Hotel name'});
     } else {
       this.setState({message: ''});
-      const url = 'https://cuboidtechnologies.com/api/search/hotel-search-1';
 
       const params = {
         bedbreakfastcost: {
@@ -210,15 +209,19 @@ class LookingHotelSteps extends Component {
         Hotel: this.state.Hotel,
       };
       if (next) {
-        this.setState({params, url});
+        this.setState({params});
         this.setState({
           index: this.state.index + 1,
         });
       } else {
-        this.props.navigation.navigate('SearchFlipbook', {
-          params,
-          url,
-        });
+        if (this.context.payload.isLoggedIn) {
+          this.props.navigation.navigate('SearchFlipbook', {
+            params,
+            url: this.state.url,
+          });
+        } else {
+          this.props.navigation.navigate('LoginPage');
+        }
       }
     }
   };
@@ -262,11 +265,14 @@ class LookingHotelSteps extends Component {
       data = {...data, petsallowed};
     }
     const _params = {...params, ...data};
-    const url = 'https://cuboidtechnologies.com/api/search/hotel-search-2';
-    this.props.navigation.navigate('SearchFlipbook', {
-      params: _params,
-      url,
-    });
+    if (this.context.payload.isLoggedIn) {
+      this.props.navigation.navigate('SearchFlipbook', {
+        params: _params,
+        url: this.state.url,
+      });
+    } else {
+      this.props.navigation.navigate('LoginPage');
+    }
   };
 
   render() {
@@ -810,7 +816,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-
     elevation: 2,
   },
   HeaderView: {

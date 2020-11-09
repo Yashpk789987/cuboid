@@ -18,7 +18,7 @@ class LookingLandSteps extends Component {
   constructor() {
     super();
     this.state = {
-      index: 2,
+      index: 0,
       cost: {min: 0, max: 5000},
       sizeinacres: {min: 0, max: 1000},
       area: '',
@@ -164,7 +164,7 @@ class LookingLandSteps extends Component {
         },
       ],
       params: undefined,
-      url: undefined,
+      url: 'https://cuboidtechnologies.com/api/search/land-search',
       message: '',
       loading: false,
     };
@@ -204,17 +204,20 @@ class LookingLandSteps extends Component {
       if (area !== '') {
         params = {...params, area};
       }
-      const url = 'https://cuboidtechnologies.com/api/search/land-search-1';
       if (next) {
-        await this.setState({params: params, url});
+        await this.setState({params: params});
         this.setState({
           index: this.state.index + 1,
         });
       } else {
-        this.props.navigation.navigate('SearchFlipbook', {
-          params,
-          url,
-        });
+        if (this.context.payload.isLoggedIn) {
+          this.props.navigation.navigate('SearchFlipbook', {
+            params,
+            url: this.state.url,
+          });
+        } else {
+          this.props.navigation.navigate('LoginPage');
+        }
       }
     }
   };
@@ -264,21 +267,23 @@ class LookingLandSteps extends Component {
     } else {
       this.setState({message: ''});
       data = {...data, soilType, nature, road};
-      const url = 'https://cuboidtechnologies.com/api/search/land-search-2';
       const newData = {...params, attributes: {...params.attributes, ...data}};
       if (next) {
         await this.setState({
           params: newData,
-          url,
         });
         this.setState({
           index: this.state.index + 1,
         });
       } else {
-        this.props.navigation.navigate('SearchFlipbook', {
-          params: newData,
-          url,
-        });
+        if (this.context.payload.isLoggedIn) {
+          this.props.navigation.navigate('SearchFlipbook', {
+            params: newData,
+            url: this.state.url,
+          });
+        } else {
+          this.props.navigation.navigate('LoginPage');
+        }
       }
     }
   };
@@ -292,7 +297,6 @@ class LookingLandSteps extends Component {
       kmtoelectricity,
       params,
     } = this.state;
-    const url = 'https://cuboidtechnologies.com/api/search/land-search-3';
     const data = {
       ...params,
       kmtoshoppingcenter,
@@ -301,10 +305,14 @@ class LookingLandSteps extends Component {
       kmtowater,
       kmtoelectricity,
     };
-    this.props.navigation.navigate('SearchFlipbook', {
-      params: data,
-      url,
-    });
+    if (this.context.payload.isLoggedIn) {
+      this.props.navigation.navigate('SearchFlipbook', {
+        params: data,
+        url: this.state.url,
+      });
+    } else {
+      this.props.navigation.navigate('LoginPage');
+    }
   };
 
   render() {
