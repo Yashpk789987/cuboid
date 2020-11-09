@@ -1144,15 +1144,9 @@ class LookingLandSteps extends Component {
                     </CollapseBody>
                   </Collapse>
 
-                  {/* Apply Btn's */}
                   <View style={styles.ApplyView}>
-                    {/* <TouchableOpacity style={styles.ApplyBtn}>
-                                            <Text style={{fontFamily: 'Lato-Regular'}}>Apply</Text>
-                                        </TouchableOpacity> */}
-                    <View></View>
                     <TouchableOpacity
                       onPress={() => this._stepSearch3()}
-                      // onPress={this.GoNextStep}
                       style={styles.ApplyBtn}>
                       <Text style={{fontFamily: 'Lato-Regular'}}>Search</Text>
                     </TouchableOpacity>
