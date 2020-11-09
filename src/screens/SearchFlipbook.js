@@ -86,7 +86,7 @@ function SearchFlipbook({
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => this.props.navigation.navigate('RegisterPage')}
+              onPress={() => navigation.navigate('RegisterPage')}
               style={{alignItems: 'center'}}>
               <Image
                 style={styles.HeaderRightIcon}
@@ -141,9 +141,7 @@ function SearchFlipbook({
                       justifyContent: 'space-around',
                     }}>
                     <TouchableOpacity
-                      onPress={() =>
-                        this.props.navigation.navigate('SavedFlipbook')
-                      }
+                      onPress={() => navigation.navigate('SavedFlipbook')}
                       style={{
                         width: 130,
                         height: 40,
@@ -155,9 +153,7 @@ function SearchFlipbook({
                       <Text style={{color: '#fff'}}>Save FlipBook</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() =>
-                        this.props.navigation.navigate('FlipbookDiscription')
-                      }
+                      onPress={() => navigation.navigate('FlipbookDiscription')}
                       style={{
                         width: 130,
                         height: 40,

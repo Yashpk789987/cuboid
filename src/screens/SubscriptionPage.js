@@ -1,160 +1,314 @@
-import React, {Component} from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
-  TextInput,
-  ImageBackground,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 
 import FooterPage from '../common/FooterPage';
-// import { TextInput } from 'react-native-paper';
+import {Loader} from '../common/Loader';
+import {UserContext} from '../contexts/UserContext';
 
-class SubscriptionPage extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <ScrollView>
-          {/* Header Start */}
-          <View style={styles.HeaderView}>
-            <View style={styles.HeaderTextView}>
-              <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image
-                  style={{
-                    width: 20,
-                    height: 20,
-                    marginTop: 10,
-                    resizeMode: 'contain',
-                  }}
-                  source={require('../../assets/Icons/backarrow.png')}
-                />
-              </TouchableOpacity>
+function SubscriptionPage(props) {
+  const {
+    payload: {
+      isLoggedIn,
+      token,
+      user: {firstname, id},
+    },
+  } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
-              <TouchableOpacity
-                onPress={() => this.props.navigation.navigate('RegisterPage')}
-                style={{alignItems: 'center'}}>
-                <Image
-                  style={styles.HeaderRightIcon}
-                  source={require('../../assets/Icons/UserIcon.png')}
-                />
-                <Text
-                  style={{
-                    color: '#FFA500',
-                    fontSize: 10,
-                    fontFamily: 'Lato-Regular',
-                  }}>
-                  Sign up
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          {/* Header end */}
+  const buyPackage = async () => {
+    if (!isLoggedIn) {
+      props.navigation.navigate('LoginPage');
+    } else {
+      setLoading(true);
+      fetch(
+        'https://cuboidtechnologies.com/api/subscription/subscription-page-new-renew',
+        {
+          method: 'patch',
+          headers: {
+            Authorization: `Bearer  ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'buy',
+            userID: id,
+            subscriptionType: {
+              buy: true,
+            },
+            subscriptionAmount: {
+              buy: 10000,
+            },
+            totalpoints: {
+              buy: 1500,
+            },
+          }),
+        },
+      )
+        .then((res) => res.json())
+        .then((result) => {
+          setLoading(false);
+          if (result.status === 'success') {
+            props.navigation.goBack();
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err);
+        });
+    }
+  };
 
-          <View
-            style={{
-              padding: 10,
-              marginTop: 50,
-              alignItems: 'center',
-              height: 500,
-            }}>
-            <Text
-              style={{fontSize: 16, color: '#FFA500', fontFamily: 'Lato-Bold'}}>
-              BEST SUBSCRIPTION PLAN FOR YOU
-            </Text>
+  const rentPackage = async () => {
+    if (!isLoggedIn) {
+      props.navigation.navigate('LoginPage');
+    } else {
+      const data = {
+        type: 'rent',
+        userID: id,
+        subscriptionType: {
+          rent: true,
+        },
+        subscriptionAmount: {
+          rent: 10000,
+        },
+        totalpoints: {
+          rent: 1500,
+        },
+      };
+      console.log(data);
+      setLoading(true);
+      fetch(
+        'https://cuboidtechnologies.com/api/subscription/subscription-page-new-renew',
+        {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        },
+      )
+        .then((res) => res.json())
+        .then((result) => {
+          setLoading(false);
+          if (result.status === 'success') {
+            props.navigation.goBack();
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err);
+        });
+    }
+  };
 
-            <View style={{marginTop: 10}}>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 12,
-                  fontFamily: 'Lato-Regular',
-                }}>
-                {' '}
-                "Dear customer we charge a small fee for the cost we incur to
-                veirfy items we list. after paying this ammount you shall get
-                the property you are looking for directly from the seller
-                without further charges. We don't charge any brockerage fee.
-                Most of our properties are listed at a negotiated price to make
-                sure you gt the best deal"
-              </Text>
-            </View>
-
-            {/* Rent Package View start */}
-            <View
+  return (
+    <View style={styles.container}>
+      {loading && <Loader />}
+      <View style={styles.HeaderView}>
+        <View style={styles.HeaderTextView}>
+          <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <Image
               style={{
-                width: '100%',
-                backgroundColor: '#fff',
-                height: 250,
-                borderRadius: 10,
-                marginTop: 40,
-                padding: 20,
+                width: 20,
+                height: 20,
+                marginTop: 10,
+                resizeMode: 'contain',
+              }}
+              source={require('../../assets/Icons/backarrow.png')}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (isLoggedIn) {
+                props.navigation.navigate('ProfilePage');
+              } else {
+                props.navigation.navigate('RegisterPage');
+              }
+            }}
+            style={{alignItems: 'center'}}>
+            <Image
+              style={styles.HeaderRightIcon}
+              source={require('../../assets/Icons/UserIcon.png')}
+            />
+            <Text
+              style={{
+                color: '#FFA500',
+                fontSize: 10,
+                fontFamily: 'Lato-Regular',
               }}>
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                  color: '#c0c0c0',
-                  fontFamily: 'Lato-Bold',
-                }}>
-                Rent Package
-              </Text>
-
-              <View style={styles.PointView}>
-                <Image
-                  source={require('../../assets/Icons/Righticon.png')}
-                  style={{width: 15, height: 15}}
-                />
-                <Text style={styles.Point}>
-                  The point you will get in this package -1500{' '}
-                </Text>
-              </View>
-              <View style={styles.PointView}>
-                <Image
-                  source={require('../../assets/Icons/Righticon.png')}
-                  style={{width: 15, height: 15}}
-                />
-                <Text style={styles.Point}>
-                  Use of points: you can use points for searching the properties
-                </Text>
-              </View>
-              <View style={styles.PointView}>
-                <Image
-                  source={require('../../assets/Icons/Righticon.png')}
-                  style={{width: 15, height: 15}}
-                />
-                <Text style={styles.Point}>
-                  The value of points: 1 point per minute
-                </Text>
-              </View>
-              <Text
-                style={{
-                  color: '#FFA500',
-                  fontFamily: 'Lato-Bold',
-                  fontSize: 20,
-                  marginTop: 20,
-                }}>
-                Lorem ipsum dolor sit amet,
-              </Text>
-
-              <TouchableOpacity style={styles.PayBtn}>
-                <Text style={{fontFamily: 'Lato-Bold'}}>Pay $1500</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScrollView>
-        <FooterPage
-          welcomePress={() => this.props.navigation.navigate('WelcomeScreen')}
-          subPress={() => this.props.navigation.navigate('SubscriptionPage')}
-          postPress={() => this.props.navigation.navigate('PostProperties')}
-          contPress={() => this.props.navigation.navigate('ContactUS')}
-          profilePress={() => this.props.navigation.navigate('ProfilePage')}
-        />
+              {isLoggedIn ? firstname : 'Sign up'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    );
-  }
+      <ScrollView
+        style={{
+          padding: 10,
+          paddingTop: 16,
+          marginBottom: 64,
+          height: '100%',
+        }}>
+        <Text style={{fontSize: 16, color: '#FFA500', fontFamily: 'Lato-Bold'}}>
+          BEST SUBSCRIPTION PLAN FOR YOU
+        </Text>
+
+        <View style={{marginTop: 10}}>
+          <Text
+            style={{
+              color: '#fff',
+              fontSize: 12,
+              fontFamily: 'Lato-Regular',
+            }}>
+            "Dear customer we charge a small fee for the cost we incure to
+            veirfy items we list. after paying this ammount you shall get the
+            property you are looking for directly from the seller without
+            further charges. We don't charge any brockerage fee. Most of our
+            properties are listed at a negotiated price to make sure you gt the
+            best deal"
+          </Text>
+        </View>
+
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            marginTop: 40,
+            padding: 20,
+          }}>
+          <Text
+            style={{
+              alignSelf: 'center',
+              fontSize: 18,
+              fontWeight: 'bold',
+              color: '#c0c0c0',
+              fontFamily: 'Lato-Bold',
+            }}>
+            Buy Package
+          </Text>
+
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              The point you will get in this package -1500
+            </Text>
+          </View>
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              Use of points: you can use points for searching the properties
+            </Text>
+          </View>
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              The value of points: 1 point per minute
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: '#FFA500',
+              fontFamily: 'Lato-Bold',
+              fontSize: 20,
+              marginTop: 20,
+            }}>
+            Charge: Subscription fee Ksh 10,000 for 1500 minutes on website and
+            app
+          </Text>
+
+          <TouchableOpacity onPress={() => buyPackage()} style={styles.PayBtn}>
+            <Text style={{fontFamily: 'Lato-Bold'}}>Pay $10000</Text>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            marginTop: 40,
+            padding: 20,
+            marginBottom: 36,
+          }}>
+          <Text
+            style={{
+              alignSelf: 'center',
+              fontSize: 18,
+              fontWeight: 'bold',
+              color: '#c0c0c0',
+              fontFamily: 'Lato-Bold',
+            }}>
+            Rent Package
+          </Text>
+
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              The point you will get in this package -1500{' '}
+            </Text>
+          </View>
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              Use of points: you can use points for searching the properties
+            </Text>
+          </View>
+          <View style={styles.PointView}>
+            <Image
+              source={require('../../assets/Icons/Righticon.png')}
+              style={{width: 15, height: 15}}
+            />
+            <Text style={styles.Point}>
+              The value of points: 1 point per minute
+            </Text>
+          </View>
+          <Text
+            style={{
+              color: '#FFA500',
+              fontFamily: 'Lato-Bold',
+              fontSize: 20,
+              marginTop: 20,
+            }}>
+            Charge: Subscription fee Ksh 3000 for 1500 minutes on website and
+            app
+          </Text>
+
+          <TouchableOpacity onPress={() => rentPackage()} style={styles.PayBtn}>
+            <Text style={{fontFamily: 'Lato-Bold'}}>Pay $3000</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      <FooterPage
+        welcomePress={() => props.navigation.navigate('WelcomeScreen')}
+        subPress={() => props.navigation.navigate('SubscriptionPage')}
+        postPress={() => props.navigation.navigate('PostProperties')}
+        contPress={() => props.navigation.navigate('ContactUS')}
+        profilePress={() => props.navigation.navigate('ProfilePage')}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -164,9 +318,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#0f0f0f',
   },
   HeaderView: {
-    // height: 130,
-    height: '12%',
+    width: '100%',
+    height: 92,
     padding: 20,
+    paddingTop: 36,
     backgroundColor: '#000',
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
@@ -175,7 +330,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // marginTop: 20
   },
   HeaderText: {
     color: '#FFA500',
@@ -223,7 +377,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Lato-Regular',
   },
   PayBtn: {
-    marginTop: 55,
+    marginTop: 36,
     borderRadius: 20,
     height: 30,
     width: 120,
